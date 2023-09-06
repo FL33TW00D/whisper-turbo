@@ -1,8 +1,8 @@
 import type { NextPage } from "next";
 import { Open_Sans } from "@next/font/google";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import React from "react";
-
+import { InferenceSession } from "whisper-turbo";
 
 const open_sans = Open_Sans({ subsets: ["latin"] });
 

@@ -1,6 +1,5 @@
-import { GenerationConfig, Session } from "./session.worker";
+import { Session } from "./session.worker";
 import * as Comlink from "comlink";
-import { AvailableModels } from "./models";
 import { Result } from "true-myth";
 
 /// Abstracts over a session running in a web worker
@@ -12,23 +11,15 @@ export class InferenceSession {
         this.session = session;
     }
 
-    async initSession(model: AvailableModels): Promise<Result<void, Error>> {
-        return await this.session!.initSession(model);
+    async initSession(model_bytes: Uint8Array, tokenizer_bytes: Uint8Array): Promise<Result<void, Error>> {
+        return await this.session!.initSession(model_bytes, tokenizer_bytes);
     }
 
-    public async run(
-        input: Map<string, any>,
-        callback: (decoded: any) => void,
-        generation_config?: GenerationConfig
-    ): Promise<Result<void, Error>> {
+    public async run(audio: Float64Array): Promise<Result<string, Error>> {
         if (this.session instanceof Session) {
-            return await this.session.run(input, callback, generation_config);
+            return await this.session.run(audio);
         } else {
-            return await this.session!.run(
-                input,
-                Comlink.proxy(callback),
-                generation_config
-            );
+            return await this.session!.run(audio);
         }
     }
 

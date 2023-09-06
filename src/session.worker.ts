@@ -3,16 +3,8 @@ import * as Comlink from "comlink";
 import { Result } from "true-myth";
 import { ok } from "true-myth/dist/public/result";
 
-export interface GenerationConfig {
-    max_length: number;
-    temperature: number;
-    top_k: number;
-    top_p: number;
-    repetition_penalty: number;
-}
-
 export class Session {
-    rumbleSession: whisper.Session | undefined;
+    whisperSession: whisper.Session | undefined;
 
     public async initSession(
         tok_bytes: Uint8Array,
@@ -22,8 +14,22 @@ export class Session {
         builder.setModel(model_bytes);
         builder.setTokenizer(tok_bytes);
         const session = await builder.build();
-        this.rumbleSession = session;
+        this.whisperSession = session;
         return ok(undefined);
+    }
+
+    public async run(
+        audio: Float64Array,
+    ): Promise<Result<string, Error>> {
+        if (!this.whisperSession) {
+            return Result.err(
+                new Error(
+                    "The session is not initialized. Call `initSession()` method first."
+                )
+            );
+        }
+
+        return Result.ok(await this.whisperSession.run(audio));
     }
 }
 
