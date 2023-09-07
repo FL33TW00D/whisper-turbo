@@ -6,12 +6,14 @@ export class Session {
     whisperSession: whisper.Session | undefined;
 
     public async initSession(
-        tok_bytes: Uint8Array,
-        model_bytes: Uint8Array
+        model_bytes: Uint8Array,
+        tok_bytes: Uint8Array
     ): Promise<Result<void, Error>> {
         await whisper.default();
         const builder = new whisper.SessionBuilder();
+        console.log("About to load model with bytes: ", model_bytes);
         builder.setModel(model_bytes);
+        console.log("About to load tokenizer with bytes: ", tok_bytes);
         builder.setTokenizer(tok_bytes);
         const session = await builder.build();
         this.whisperSession = session;

@@ -14,10 +14,29 @@ const Home: NextPage = () => {
     );
     const [audioFile, setAudioFile] = useState<ArrayBuffer | null>(null);
 
+    const handleFileChange = (setFileState: any) => async (event: any) => {
+        const file = event.target.files[0];
+        if (!file) {
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            setFileState(e!.target!.result);
+        };
+        reader.readAsArrayBuffer(file);
+    };
+
     const loadModel = async () => {
         if (session.current) {
             session.current.destroy();
         }
+        if (!modelFile || !tokenizerFile) {
+            console.error("No model or tokenizer file loaded");
+            return;
+        }
+        console.log("Loading model");
+        console.log("model", modelFile);
+        console.log("tokenizer", tokenizerFile);
         const manager = new SessionManager();
         const loadResult = await manager.loadModel(
             modelFile as Uint8Array,
@@ -49,15 +68,26 @@ const Home: NextPage = () => {
                     <h1>HELLO WORLD</h1>
                     <div className="flex flex-col py-16">
                         <label htmlFor="modelFile">Model File</label>
-                        <input type="file" name="modelFile" id="modelFile" />
+                        <input
+                            type="file"
+                            name="modelFile"
+                            id="modelFile"
+                            onChange={handleFileChange(setModelFile)}
+                        />
                         <label htmlFor="tokenizerFile">Tokenizer File</label>
                         <input
                             type="file"
                             name="tokenizerFile"
                             id="tokenizerFile"
+                            onChange={handleFileChange(setTokenizerFile)}
                         />
                         <label htmlFor="audioFile">Audio File</label>
-                        <input type="file" name="audioFile" id="audioFile" />
+                        <input
+                            type="file"
+                            name="audioFile"
+                            id="audioFile"
+                            onChange={handleFileChange(setAudioFile)}
+                        />
                     </div>
                     <div className="flex flex-col py-16">
                         <button onClick={loadModel}>Load Model</button>

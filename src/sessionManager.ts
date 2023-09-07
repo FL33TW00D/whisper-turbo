@@ -18,6 +18,8 @@ export class SessionManager {
         onLoaded: (result: any) => void
     ): Promise<Result<InferenceSession, Error>> {
         console.error("Starting model load...");
+        console.log("Model bytes: ", modelBytes);
+        console.log("Tokenizer bytes: ", tokenizerBytes);
         const creationResult = await this.createSession(true, modelBytes, tokenizerBytes);
         if(creationResult.isErr){
             return Result.err(creationResult.error);
@@ -47,6 +49,7 @@ export class SessionManager {
                 })
             );
             const session = await new SessionWorker();
+
             const initResult = await session.initSession(model, tokenizer);
             //@ts-ignore fucking comlink
             if (initResult.repr[0] === "Err") {
