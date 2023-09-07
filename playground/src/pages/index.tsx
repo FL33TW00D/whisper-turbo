@@ -8,11 +8,9 @@ const open_sans = Open_Sans({ subsets: ["latin"] });
 const Home: NextPage = () => {
     const [text, setText] = useState("");
     const session = useRef<InferenceSession | null>(null);
-    const [modelFile, setModelFile] = useState<ArrayBuffer | null>(null);
-    const [tokenizerFile, setTokenizerFile] = useState<ArrayBuffer | null>(
-        null
-    );
-    const [audioFile, setAudioFile] = useState<ArrayBuffer | null>(null);
+    const [modelFile, setModelFile] = useState<Uint8Array | null>(null);
+    const [tokenizerFile, setTokenizerFile] = useState<Uint8Array | null>(null);
+    const [audioFile, setAudioFile] = useState<Uint8Array | null>(null);
 
     const handleFileChange = (setFileState: any) => async (event: any) => {
         const file = event.target.files[0];
@@ -20,10 +18,13 @@ const Home: NextPage = () => {
             return;
         }
         const reader = new FileReader();
-        reader.onload = (e) => {
-            setFileState(e!.target!.result);
+        reader.onload = () => {
+            const arrayBuffer = reader.result as ArrayBuffer;
+            const uint8Array = new Uint8Array(arrayBuffer);
+            setFileState(uint8Array);
         };
         reader.readAsArrayBuffer(file);
+        //read the file to Uint8Array and call setFileState
     };
 
     const loadModel = async () => {
@@ -34,13 +35,10 @@ const Home: NextPage = () => {
             console.error("No model or tokenizer file loaded");
             return;
         }
-        console.log("Loading model");
-        console.log("model", modelFile);
-        console.log("tokenizer", tokenizerFile);
         const manager = new SessionManager();
         const loadResult = await manager.loadModel(
-            modelFile as Uint8Array,
-            tokenizerFile as Uint8Array,
+            modelFile,
+            tokenizerFile,
             () => console.log("Progress")
         );
         if (loadResult.isErr) {

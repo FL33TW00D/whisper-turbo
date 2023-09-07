@@ -12,10 +12,11 @@ export class Session {
         await whisper.default();
         const builder = new whisper.SessionBuilder();
         console.log("About to load model with bytes: ", model_bytes);
-        builder.setModel(model_bytes);
         console.log("About to load tokenizer with bytes: ", tok_bytes);
-        builder.setTokenizer(tok_bytes);
-        const session = await builder.build();
+        const session = await builder
+            .setModel(model_bytes)
+            .setTokenizer(tok_bytes)
+            .build();
         this.whisperSession = session;
         return Result.ok(undefined);
     }
