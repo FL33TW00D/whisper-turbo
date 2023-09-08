@@ -81,10 +81,13 @@ const Home: NextPage = () => {
                 <div className="flex-1 flex flex-col relative z-10">
                     <div className="flex flex-row h-screen">
                         <div className="flex flex-col p-12 w-full mx-auto">
-                            <img src="/whisper-turbo.png" className="w-1/2 mx-auto" />
+                            <img
+                                src="/whisper-turbo.png"
+                                className="w-1/2 mx-auto pb-8"
+                            />
                             <div className="flex flex-row mx-auto">
                                 <label
-                                    className="bg-blue-400 text-white font-semibold py-2 px-4 h-12 rounded-tl-lg rounded-bl-lg mx-auto cursor-pointer"
+                                    className="bg-pop-orange border-y-4 border-l-4 text-white font-semibold py-4 px-8 rounded-l-lg mx-auto cursor-pointer"
                                     htmlFor="modelFile"
                                 >
                                     Model File
@@ -97,7 +100,7 @@ const Home: NextPage = () => {
                                     onChange={handleFileChange(setModelFile)}
                                 />
                                 <label
-                                    className="bg-rose-400 text-white font-semibold py-2 px-4 h-12 rounded mx-auto cursor-pointer"
+                                    className="bg-pop-orange border-y-4 text-white font-semibold py-4 px-8 mx-auto cursor-pointer"
                                     htmlFor="tokenizerFile"
                                 >
                                     Tokenizer File
@@ -112,7 +115,7 @@ const Home: NextPage = () => {
                                     )}
                                 />
                                 <label
-                                    className="bg-rose-400 text-white font-semibold py-2 px-4 h-12 rounded mx-auto cursor-pointer"
+                                    className="bg-pop-orange border-y-4 border-r-4 text-white font-semibold py-4 px-8 rounded-r-lg mx-auto cursor-pointer"
                                     htmlFor="audioFile"
                                 >
                                     Audio File
@@ -127,7 +130,7 @@ const Home: NextPage = () => {
                             </div>
 
                             {blobUrl && (
-                                <div className="flex flex-row mx-auto">
+                                <div className="flex flex-row mx-auto mt-8">
                                     <audio controls>
                                         <source
                                             src={blobUrl}
@@ -136,28 +139,27 @@ const Home: NextPage = () => {
                                     </audio>
                                 </div>
                             )}
-                            <div className="flex flex-row py-16 gap-4 mx-auto">
+                            <div className="flex flex-row pt-16 gap-4 mx-auto">
                                 <button
-                                    className="bg-rose-400 text-white font-semibold py-2 px-4 h-12 rounded"
+                                    className="bg-pop-orange border-2 text-white font-semibold py-4 px-8 rounded-lg mx-auto cursor-pointer"
                                     onClick={loadModel}
                                 >
                                     Load Model
                                 </button>
                                 <button
-                                    className="bg-rose-400 text-white font-semibold py-2 px-4 h-12 rounded"
+                                    className="bg-pop-orange border-2 text-white font-semibold py-4 px-8 rounded-lg mx-auto cursor-pointer"
                                     onClick={runSession}
                                 >
                                     Process Files
                                 </button>
                             </div>
-                            <div className="flex flex-row py-16 gap-4 mx-auto w-1/2">
-                                <p>{text}</p>
+                            <div className="flex flex-row py-8 gap-4 mx-auto w-1/2">
+                                <p className="text-lg text-white font-bold">{text}</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div className="absolute bottom-0 left-0 right-0 top-1/2 sm:inset-0 bg-[radial-gradient(circle_at_50%_200%,var(--tw-gradient-stops))] from-[#F37335] via-[#F37335] to-transparent"></div>
         </Layout>
     );
 };

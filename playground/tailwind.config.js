@@ -5,9 +5,9 @@ module.exports = {
         extend: {
             colors: {
                 dark: "#131414",
+                "pop-orange": "#f93c26",
             },
         },
     },
     plugins: [require("@tailwindcss/typography")],
 };
-
