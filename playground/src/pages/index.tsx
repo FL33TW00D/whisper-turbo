@@ -1,7 +1,8 @@
 import type { NextPage } from "next";
 import { Open_Sans } from "@next/font/google";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { InferenceSession, SessionManager } from "whisper-turbo";
+import Layout from "../components/layout";
 
 const open_sans = Open_Sans({ subsets: ["latin"] });
 
@@ -55,44 +56,83 @@ const Home: NextPage = () => {
         }
         const inferenceResult = await session.current.run(audioFile!);
         console.log(inferenceResult);
-        inferenceResult.repr[0] == "Ok" ? setText(inferenceResult.repr[1]) : console.error(inferenceResult);
+        inferenceResult.repr[0] == "Ok"
+            ? setText(inferenceResult.repr[1])
+            : console.error(inferenceResult);
     };
 
     return (
-        <div className={`p-0 ${open_sans.className}`}>
-            <div className="flex-1 flex flex-col">
-                <div className="flex flex-row h-screen">
-                    <div className="flex flex-col py-16">
-                        <label htmlFor="modelFile">Model File</label>
-                        <input
-                            type="file"
-                            name="modelFile"
-                            id="modelFile"
-                            onChange={handleFileChange(setModelFile)}
-                        />
-                        <label htmlFor="tokenizerFile">Tokenizer File</label>
-                        <input
-                            type="file"
-                            name="tokenizerFile"
-                            id="tokenizerFile"
-                            onChange={handleFileChange(setTokenizerFile)}
-                        />
-                        <label htmlFor="audioFile">Audio File</label>
-                        <input
-                            type="file"
-                            name="audioFile"
-                            id="audioFile"
-                            onChange={handleFileChange(setAudioFile)}
-                        />
+        <Layout title={"Whisper Turbo"}>
+            <div className={`p-0 ${open_sans.className}`}>
+                <div className="flex-1 flex flex-col">
+                    <div className="flex flex-row h-screen">
+                        <div className="flex flex-col p-12 w-full mx-auto">
+                                <h1 className="mx-auto text-6xl font-semibold"> Whisper Turbo </h1>
+                            <div className="flex flex-row mx-auto my-16">
+                                <label
+                                    className="bg-rose-400 text-white font-semibold py-2 px-4 h-12 rounded mx-auto cursor-pointer"
+                                    htmlFor="modelFile"
+                                >
+                                    Model File
+                                </label>
+                                <input
+                                    type="file"
+                                    className="hidden"
+                                    name="modelFile"
+                                    id="modelFile"
+                                    onChange={handleFileChange(setModelFile)}
+                                />
+                                <label
+                                    className="bg-rose-400 text-white font-semibold py-2 px-4 h-12 rounded mx-auto cursor-pointer"
+                                    htmlFor="tokenizerFile"
+                                >
+                                    Tokenizer File
+                                </label>
+                                <input
+                                    type="file"
+                                    className="hidden"
+                                    name="tokenizerFile"
+                                    id="tokenizerFile"
+                                    onChange={handleFileChange(
+                                        setTokenizerFile
+                                    )}
+                                />
+                                <label
+                                    className="bg-rose-400 text-white font-semibold py-2 px-4 h-12 rounded mx-auto cursor-pointer"
+                                    htmlFor="audioFile"
+                                >
+                                    Audio File
+                                </label>
+                                <input
+                                    type="file"
+                                    className="hidden"
+                                    name="audioFile"
+                                    id="audioFile"
+                                    onChange={handleFileChange(setAudioFile)}
+                                />
+                            </div>
+                            <div className="flex flex-row py-16 gap-4 mx-auto">
+                                <button
+                                    className="bg-rose-400 text-white font-semibold py-2 px-4 h-12 rounded"
+                                    onClick={loadModel}
+                                >
+                                    Load Model
+                                </button>
+                                <button
+                                    className="bg-rose-400 text-white font-semibold py-2 px-4 h-12 rounded"
+                                    onClick={runSession}
+                                >
+                                    Process Files
+                                </button>
+                            </div>
+                            <div className="flex flex-row py-16 gap-4 mx-auto w-1/2">
+                                <p>{text}</p>
+                            </div>
+                        </div>
                     </div>
-                    <div className="flex flex-col py-16">
-                        <button onClick={loadModel}>Load Model</button>
-                        <button onClick={runSession}>Process Files</button>
-                    </div>
-                    <div>{text}</div>
                 </div>
             </div>
-        </div>
+        </Layout>
     );
 };
 
