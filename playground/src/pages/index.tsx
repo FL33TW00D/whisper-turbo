@@ -2,7 +2,6 @@ import type { NextPage } from "next";
 import { Open_Sans } from "@next/font/google";
 import { useState, useRef, useEffect } from "react";
 import { InferenceSession, SessionManager } from "whisper-turbo";
-import { unwrapOr } from "true-myth/dist/es/result";
 
 const open_sans = Open_Sans({ subsets: ["latin"] });
 
@@ -63,7 +62,6 @@ const Home: NextPage = () => {
         <div className={`p-0 ${open_sans.className}`}>
             <div className="flex-1 flex flex-col">
                 <div className="flex flex-row h-screen">
-                    <h1>HELLO WORLD</h1>
                     <div className="flex flex-col py-16">
                         <label htmlFor="modelFile">Model File</label>
                         <input
