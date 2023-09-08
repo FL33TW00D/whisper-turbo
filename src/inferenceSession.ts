@@ -15,11 +15,11 @@ export class InferenceSession {
         return await this.session!.initSession(model_bytes, tokenizer_bytes);
     }
 
-    public async run(audio: Float64Array): Promise<Result<string, Error>> {
-        if (this.session instanceof Session) {
-            return await this.session.run(audio);
-        } else {
+    public async run(audio: Uint8Array): Promise<Result<string, Error>> {
+        if (this.session !== null) { 
             return await this.session!.run(audio);
+        }else {
+            return Result.err(new Error("Session not initialized"));
         }
     }
 

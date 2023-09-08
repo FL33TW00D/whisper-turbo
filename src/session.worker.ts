@@ -11,8 +11,6 @@ export class Session {
     ): Promise<Result<void, Error>> {
         await whisper.default();
         const builder = new whisper.SessionBuilder();
-        console.log("About to load model with bytes: ", model_bytes);
-        console.log("About to load tokenizer with bytes: ", tok_bytes);
         const session = await builder
             .setModel(model_bytes)
             .setTokenizer(tok_bytes)
@@ -21,7 +19,7 @@ export class Session {
         return Result.ok(undefined);
     }
 
-    public async run(audio: Float64Array): Promise<Result<string, Error>> {
+    public async run(audio: Uint8Array): Promise<Result<string, Error>> {
         if (!this.whisperSession) {
             return Result.err(
                 new Error(

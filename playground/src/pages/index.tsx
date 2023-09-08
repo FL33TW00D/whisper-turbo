@@ -2,6 +2,7 @@ import type { NextPage } from "next";
 import { Open_Sans } from "@next/font/google";
 import { useState, useRef, useEffect } from "react";
 import { InferenceSession, SessionManager } from "whisper-turbo";
+import { unwrapOr } from "true-myth/dist/es/result";
 
 const open_sans = Open_Sans({ subsets: ["latin"] });
 
@@ -53,10 +54,9 @@ const Home: NextPage = () => {
             console.error("No session loaded");
             return;
         }
-        const inferenceResult = await session.current.run(
-            audioFile as Float64Array
-        );
+        const inferenceResult = await session.current.run(audioFile!);
         console.log(inferenceResult);
+        inferenceResult.repr[0] == "Ok" ? setText(inferenceResult.repr[1]) : console.error(inferenceResult);
     };
 
     return (
