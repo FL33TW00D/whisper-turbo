@@ -1,10 +1,11 @@
 import type { NextPage } from "next";
-import { Inter } from "@next/font/google";
+import { Inter, VT323 } from "@next/font/google";
 import { useState, useRef, useEffect } from "react";
 import { InferenceSession, SessionManager } from "whisper-turbo";
 import Layout from "../components/layout";
 
 const open_sans = Inter({ subsets: ["latin"] });
+const vt = VT323({ weight: "400" });
 
 const Home: NextPage = () => {
     const [text, setText] = useState("");
@@ -83,7 +84,7 @@ const Home: NextPage = () => {
                         <div className="flex flex-col p-12 w-full mx-auto">
                             <img
                                 src="/whisper-turbo.png"
-                                className="w-1/2 mx-auto pb-8"
+                                className="w-1/2 md:w-1/3 mx-auto pb-8"
                             />
                             <div className="flex flex-row mx-auto">
                                 <label
@@ -139,7 +140,7 @@ const Home: NextPage = () => {
                                     </audio>
                                 </div>
                             )}
-                            <div className="flex flex-row pt-16 gap-4 mx-auto">
+                            <div className="flex flex-row pt-8 gap-4 mx-auto">
                                 <button
                                     className="bg-pop-orange border-2 text-white font-semibold py-4 px-8 rounded-lg mx-auto cursor-pointer"
                                     onClick={loadModel}
@@ -154,7 +155,7 @@ const Home: NextPage = () => {
                                 </button>
                             </div>
                             <div className="flex flex-row py-8 gap-4 mx-auto w-1/2">
-                                <p className="text-lg text-white font-bold">{text}</p>
+                                <p className={`text-2xl text-white font-bold ${vt.className}`}>{text}</p>
                             </div>
                         </div>
                     </div>
