@@ -1,10 +1,10 @@
 import type { NextPage } from "next";
-import { Open_Sans } from "@next/font/google";
-import { useState, useRef } from "react";
+import { Inter } from "@next/font/google";
+import { useState, useRef, useEffect } from "react";
 import { InferenceSession, SessionManager } from "whisper-turbo";
 import Layout from "../components/layout";
 
-const open_sans = Open_Sans({ subsets: ["latin"] });
+const open_sans = Inter({ subsets: ["latin"] });
 
 const Home: NextPage = () => {
     const [text, setText] = useState("");
@@ -25,8 +25,22 @@ const Home: NextPage = () => {
             setFileState(uint8Array);
         };
         reader.readAsArrayBuffer(file);
-        //read the file to Uint8Array and call setFileState
     };
+
+    // Somewhere in the state of your component...
+    const [blobUrl, setBlobUrl] = useState<string | null>(null);
+
+    // When the audio file is uploaded, create a new Blob URL
+    useEffect(() => {
+        if (audioFile) {
+            const blob = new Blob([audioFile], { type: "audio/wav" }); // set type to audio type of your data
+            const url = URL.createObjectURL(blob);
+            setBlobUrl(url);
+            return () => {
+                URL.revokeObjectURL(url);
+            };
+        }
+    }, [audioFile]);
 
     const loadModel = async () => {
         if (session.current) {
@@ -64,13 +78,13 @@ const Home: NextPage = () => {
     return (
         <Layout title={"Whisper Turbo"}>
             <div className={`p-0 ${open_sans.className}`}>
-                <div className="flex-1 flex flex-col">
+                <div className="flex-1 flex flex-col relative z-10">
                     <div className="flex flex-row h-screen">
                         <div className="flex flex-col p-12 w-full mx-auto">
-                                <h1 className="mx-auto text-6xl font-semibold"> Whisper Turbo </h1>
-                            <div className="flex flex-row mx-auto my-16">
+                            <img src="/whisper-turbo.png" className="w-1/2 mx-auto" />
+                            <div className="flex flex-row mx-auto">
                                 <label
-                                    className="bg-rose-400 text-white font-semibold py-2 px-4 h-12 rounded mx-auto cursor-pointer"
+                                    className="bg-blue-400 text-white font-semibold py-2 px-4 h-12 rounded-tl-lg rounded-bl-lg mx-auto cursor-pointer"
                                     htmlFor="modelFile"
                                 >
                                     Model File
@@ -111,6 +125,17 @@ const Home: NextPage = () => {
                                     onChange={handleFileChange(setAudioFile)}
                                 />
                             </div>
+
+                            {blobUrl && (
+                                <div className="flex flex-row mx-auto">
+                                    <audio controls>
+                                        <source
+                                            src={blobUrl}
+                                            type="audio/wav"
+                                        />
+                                    </audio>
+                                </div>
+                            )}
                             <div className="flex flex-row py-16 gap-4 mx-auto">
                                 <button
                                     className="bg-rose-400 text-white font-semibold py-2 px-4 h-12 rounded"
@@ -132,6 +157,7 @@ const Home: NextPage = () => {
                     </div>
                 </div>
             </div>
+            <div className="absolute bottom-0 left-0 right-0 top-1/2 sm:inset-0 bg-[radial-gradient(circle_at_50%_200%,var(--tw-gradient-stops))] from-[#F37335] via-[#F37335] to-transparent"></div>
         </Layout>
     );
 };
