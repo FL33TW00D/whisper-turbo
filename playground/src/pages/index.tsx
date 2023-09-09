@@ -69,11 +69,9 @@ const Home: NextPage = () => {
             console.error("No session loaded");
             return;
         }
-        const inferenceResult = await session.current.run(audioFile!);
-        console.log(inferenceResult);
-        inferenceResult.repr[0] == "Ok"
-            ? setText(inferenceResult.repr[1])
-            : console.error(inferenceResult);
+        const inferenceResult = await session.current.stream(audioFile!, (decoded: string) => {
+            setText(decoded);
+        });
     };
 
     return (
@@ -156,7 +154,7 @@ const Home: NextPage = () => {
                                 </button>
                             </div>
                             <div className="flex flex-row py-8 gap-4 mx-auto w-3/4 xl:w-1/2">
-                                <p className={`text-3xl text-white font-bold ${vt.className}`}>{text}</p>
+                                <p className={`text-2xl text-white font-bold ${vt.className}`}>{text}</p>
                             </div>
                         </div>
                     </div>

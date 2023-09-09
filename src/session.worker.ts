@@ -30,6 +30,21 @@ export class Session {
 
         return Result.ok(await this.whisperSession.run(audio));
     }
+
+    public async stream(
+        audio: Uint8Array,
+        callback: (decoded: string) => void
+    ): Promise<Result<void, Error>> {
+        if (!this.whisperSession) {
+            return Result.err(
+                new Error(
+                    "The session is not initialized. Call `initSession()` method first."
+                )
+            );
+        }
+
+        return Result.ok(await this.whisperSession.stream(audio, callback));
+    }
 }
 
 if (typeof self !== "undefined") {
