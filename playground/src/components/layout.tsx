@@ -12,7 +12,7 @@ type LayoutProps = {
 export default function Layout(props: LayoutProps) {
     return (
         <div
-            className="flex min-h-screen flex-col justify-center bg-sky-500 -z-20"
+            className="flex h-full min-h-screen bg-sky-500 -z-20"
             style={{
                 backgroundColor: "#38bdf8",
                 backgroundImage:
