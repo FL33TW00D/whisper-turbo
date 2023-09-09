@@ -1,52 +1,65 @@
 import * as whisper from "whisper-webgpu";
 import * as Comlink from "comlink";
 import { Result } from "true-myth";
+import { AvailableModels, Model } from "./models";
+import ModelDB from "./db/modelDB";
 
 export class Session {
     whisperSession: whisper.Session | undefined;
 
     public async initSession(
-        model_bytes: Uint8Array,
-        tok_bytes: Uint8Array
+        selectedModel: AvailableModels
     ): Promise<Result<void, Error>> {
+        console.error("Initializing session with model: ", selectedModel);
+        if (this.whisperSession) {
+            return Result.err(
+                new Error(
+                    "Session already initialized. Call `destroy()` first."
+                )
+            );
+        }
+        const modelResult = await this.loadModel(selectedModel);
+        if (modelResult.isErr) {
+            return Result.err(modelResult.error);
+        }
+        const model = modelResult.value;
+        console.log("Loaded model: ", model);
         await whisper.default();
         const builder = new whisper.SessionBuilder();
         const session = await builder
-            .setModel(model_bytes)
-            .setTokenizer(tok_bytes)
+            .setModel(model.data)
+            .setTokenizer(model.tokenizer)
             .build();
         this.whisperSession = session;
         return Result.ok(undefined);
     }
 
     private async loadModel(
-        model: AvailableModels
-    ): Promise<Result<Model[], Error[]>> {
-        let db = await ModelDB.create();
-        const dbModelsResult = await db.getModels(model);
-        if (dbModelsResult.isErr) {
-            return Result.err([new Error("Model not found")]);
+        selectedModel: AvailableModels
+    ): Promise<Result<Model, Error>> {
+        const db = await ModelDB.create(); //TODO: don't create a new db every time
+        const dbResult = await db.getModel(selectedModel);
+        if (dbResult.isErr) {
+            return Result.err(
+                new Error(
+                    `Failed to load model ${selectedModel} with error: ${dbResult.error}`
+                )
+            );
         }
-        const dbModels = dbModelsResult.value;
+        const dbModel = dbResult.value;
 
-        let failedModels: Error[] = [];
-        const modelResults = await Promise.all(
-            dbModels.map(async (m) => {
-                const model = await Model.fromDBModel(m.model, db);
-                if (model.isErr) {
-                    failedModels.push(model.error);
-                }
-                return model;
-            })
-        );
-        if (failedModels.length > 0) {
-            return Result.err(failedModels);
+        const modelResult = await Model.fromDBModel(dbModel, db);
+
+        if (modelResult.isErr) {
+            return Result.err(
+                new Error(
+                    `Failed to transmute model ${selectedModel} with error: ${modelResult.error}`
+                )
+            );
         }
-        const models = modelResults.map((r) => r.unwrapOr(undefined)!);
-
-        return Result.ok(models);
+        const model = modelResult.value;
+        return Result.ok(model);
     }
-
 
     public async run(audio: Uint8Array): Promise<Result<string, Error>> {
         if (!this.whisperSession) {

@@ -1,7 +1,7 @@
 import { DBSchema, IDBPDatabase, openDB } from "idb/with-async-ittr";
 import { v4 as uuidv4 } from "uuid";
 import { DBModel, DBTokenizer } from "./types";
-import { AvailableModels } from "../models";
+import { AvailableModels, Model } from "../models";
 import { Result } from "true-myth";
 import pRetry from "p-retry";
 
@@ -10,6 +10,10 @@ interface ModelDBSchema extends DBSchema {
         value: DBModel;
         key: string;
         indexes: { modelID: string };
+    };
+    availableModels: {
+        value: string;
+        key: AvailableModels;
     };
     tokenizer: {
         value: DBTokenizer;
@@ -47,6 +51,7 @@ export default class ModelDB {
         const db = await openDB<ModelDBSchema>("models", 1, {
             upgrade(db) {
                 db.createObjectStore("models");
+                db.createObjectStore("availableModels");
                 const tokenizer_store = db.createObjectStore("tokenizer");
                 tokenizer_store.createIndex("modelID", "modelID");
             },
@@ -58,8 +63,8 @@ export default class ModelDB {
     private async fetchBytes(url: string): Promise<Result<Uint8Array, Error>> {
         const run = async () => {
             const response = await fetch(url);
-            if (response.status === 404) {
-                throw new Error("404");
+            if (response.status >= 400) {
+                throw new Error(response.statusText);
             }
             return response.arrayBuffer();
         };
@@ -70,74 +75,56 @@ export default class ModelDB {
         return Result.ok(new Uint8Array(bytes));
     }
 
-    async _getModels(modelID: string): Promise<Result<ModelWithKey[], Error>> {
-        console.log("Attempting to get models");
+    async _getModel(modelID: string): Promise<Result<DBModel, Error>> {
         if (!this.db) {
             return Result.err(new Error("ModelDB not initialized"));
         }
 
         const tx = this.db.transaction("models", "readonly");
         const index = tx.store.index("modelID");
-
-        let models: ModelWithKey[] = [];
-        for await (const cursor of index.iterate(modelID.toString())) {
-            models.push({ id: cursor.key, model: cursor.value });
-        }
-
+        const model = await index.get(modelID);
         await tx.done;
 
-        models.sort((a, b) => a.model.index - b.model.index);
-        return Result.ok(models);
+        if (!model) {
+            return Result.err(new Error("Model not found"));
+        }
+        return Result.ok(model);
     }
 
     async getTokenizer(modelID: string): Promise<Result<DBTokenizer, Error>> {
-        console.log("Attempting to get tokenizer");
         if (!this.db) {
             return Result.err(new Error("ModelDB not initialized"));
         }
 
-        const tokenizer = await this.db.getAllFromIndex(
+        const tokenizer = await this.db.getFromIndex(
             "tokenizer",
             "modelID",
             modelID.toString()
         );
-        if (tokenizer.length !== 1) {
-            return Result.err(
-                new Error("Expected 1 tokenizer, got " + tokenizer.length)
-            );
+
+        if (!tokenizer) {
+            return Result.err(new Error(`Tokenizer not found for model ID: ${modelID}`));
         }
 
-        return Result.ok(tokenizer[0]);
+        return Result.ok(tokenizer);
     }
 
-    async getModels(
+    async getModel(
         model: AvailableModels
-    ): Promise<Result<ModelWithKey[], Error>> {
+    ): Promise<Result<DBModel, Error>> {
         if (!this.db) {
             return Result.err(new Error("ModelDB not initialized"));
         }
         let modelID = await this.db.get("availableModels", model);
         console.log("Found existing model ID: ", modelID);
         if (!modelID) {
-            await this.fetchBundle(model);
+            await this.fetchRemote(model);
             modelID = await this.db.get("availableModels", model);
         }
-
-        let storedModels = await this._getModels(modelID!);
-
-        return storedModels;
+        return await this._getModel(modelID!);
     }
 
-    async insertModel(
-        definition: string,
-        tensorIDs: string[],
-        index: number,
-        modelID: string,
-        bytes: Uint8Array
-    ): Promise<string> {
-        let dbModel = { name: definition, modelID, bytes, index, tensorIDs };
-        let componentID = uuidv4();
-        this.db!.put("models", dbModel, componentID);
-        return componentID;
+    async fetchRemote(model: AvailableModels): Promise<Result<void, Error>> {
+
     }
 }

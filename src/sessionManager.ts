@@ -7,7 +7,7 @@ import { Result } from "true-myth";
 export class SessionManager {
     /**
      * Loads a model and returns a Session instance.
-     * @param model - The model to load.
+     * @param selectedModel - The model to load.
      * @param onLoaded - A callback that is called when the model is loaded.
      * @returns A Promise that resolves with a Session instance.
      *
@@ -16,8 +16,7 @@ export class SessionManager {
         selectedModel: AvailableModels,
         onLoaded: (result: any) => void
     ): Promise<Result<InferenceSession, Error>> {
-        console.error("Starting model load...");
-        const creationResult = await this.createSession(true, modelBytes, tokenizerBytes);
+        const creationResult = await this.createSession(true, selectedModel);
         if(creationResult.isErr){
             return Result.err(creationResult.error);
         }
