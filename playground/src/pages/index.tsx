@@ -69,7 +69,7 @@ const Home: NextPage = () => {
             console.error("No session loaded");
             return;
         }
-        const inferenceResult = await session.current.stream(audioFile!, (decoded: string) => {
+        await session.current.stream(audioFile!, (decoded: string) => {
             setText(decoded);
         });
     };
@@ -153,7 +153,7 @@ const Home: NextPage = () => {
                                     Process Files
                                 </button>
                             </div>
-                            <div className="flex flex-row py-8 gap-4 mx-auto w-3/4 xl:w-1/2">
+                            <div className="flex flex-row pt-8 pb-24 gap-4 mx-auto w-3/4 xl:w-1/2">
                                 <p className={`text-2xl text-white font-bold ${vt.className}`}>{text}</p>
                             </div>
                         </div>
