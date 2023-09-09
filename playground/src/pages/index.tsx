@@ -1,9 +1,11 @@
 import type { NextPage } from "next";
-import { Open_Sans } from "@next/font/google";
+import { Inter, VT323 } from "@next/font/google";
 import { useState, useRef, useEffect } from "react";
 import { InferenceSession, SessionManager } from "whisper-turbo";
+import Layout from "../components/layout";
 
-const open_sans = Open_Sans({ subsets: ["latin"] });
+const open_sans = Inter({ subsets: ["latin"] });
+const vt = VT323({ weight: "400" , display: 'swap'});
 
 const Home: NextPage = () => {
     const [text, setText] = useState("");
@@ -24,8 +26,22 @@ const Home: NextPage = () => {
             setFileState(uint8Array);
         };
         reader.readAsArrayBuffer(file);
-        //read the file to Uint8Array and call setFileState
     };
+
+    // Somewhere in the state of your component...
+    const [blobUrl, setBlobUrl] = useState<string | null>(null);
+
+    // When the audio file is uploaded, create a new Blob URL
+    useEffect(() => {
+        if (audioFile) {
+            const blob = new Blob([audioFile], { type: "audio/wav" }); // set type to audio type of your data
+            const url = URL.createObjectURL(blob);
+            setBlobUrl(url);
+            return () => {
+                URL.revokeObjectURL(url);
+            };
+        }
+    }, [audioFile]);
 
     const loadModel = async () => {
         if (session.current) {
@@ -55,44 +71,98 @@ const Home: NextPage = () => {
         }
         const inferenceResult = await session.current.run(audioFile!);
         console.log(inferenceResult);
-        inferenceResult.repr[0] == "Ok" ? setText(inferenceResult.repr[1]) : console.error(inferenceResult);
+        inferenceResult.repr[0] == "Ok"
+            ? setText(inferenceResult.repr[1])
+            : console.error(inferenceResult);
     };
 
     return (
-        <div className={`p-0 ${open_sans.className}`}>
-            <div className="flex-1 flex flex-col">
-                <div className="flex flex-row h-screen">
-                    <div className="flex flex-col py-16">
-                        <label htmlFor="modelFile">Model File</label>
-                        <input
-                            type="file"
-                            name="modelFile"
-                            id="modelFile"
-                            onChange={handleFileChange(setModelFile)}
-                        />
-                        <label htmlFor="tokenizerFile">Tokenizer File</label>
-                        <input
-                            type="file"
-                            name="tokenizerFile"
-                            id="tokenizerFile"
-                            onChange={handleFileChange(setTokenizerFile)}
-                        />
-                        <label htmlFor="audioFile">Audio File</label>
-                        <input
-                            type="file"
-                            name="audioFile"
-                            id="audioFile"
-                            onChange={handleFileChange(setAudioFile)}
-                        />
+        <Layout title={"Whisper Turbo"}>
+            <div className={`p-0 ${open_sans.className}`}>
+                <div className="flex-1 flex flex-col relative z-10 overflow-scroll">
+                    <div className="flex flex-row h-screen">
+                        <div className="flex flex-col p-12 w-full mx-auto">
+                            <img
+                                src="/whisper-turbo.png"
+                                className="w-1/2 xl:w-1/3 mx-auto pb-8"
+                            />
+                            <div className="flex flex-row mx-auto">
+                                <label
+                                    className="bg-pop-orange border-y-4 border-l-4 text-white font-semibold py-4 px-8 rounded-l-lg mx-auto cursor-pointer"
+                                    htmlFor="modelFile"
+                                >
+                                    Model File
+                                </label>
+                                <input
+                                    type="file"
+                                    className="hidden"
+                                    name="modelFile"
+                                    id="modelFile"
+                                    onChange={handleFileChange(setModelFile)}
+                                />
+                                <label
+                                    className="bg-pop-orange border-y-4 text-white font-semibold py-4 px-8 mx-auto cursor-pointer"
+                                    htmlFor="tokenizerFile"
+                                >
+                                    Tokenizer File
+                                </label>
+                                <input
+                                    type="file"
+                                    className="hidden"
+                                    name="tokenizerFile"
+                                    id="tokenizerFile"
+                                    onChange={handleFileChange(
+                                        setTokenizerFile
+                                    )}
+                                />
+                                <label
+                                    className="bg-pop-orange border-y-4 border-r-4 text-white font-semibold py-4 px-8 rounded-r-lg mx-auto cursor-pointer"
+                                    htmlFor="audioFile"
+                                >
+                                    Audio File
+                                </label>
+                                <input
+                                    type="file"
+                                    className="hidden"
+                                    name="audioFile"
+                                    id="audioFile"
+                                    onChange={handleFileChange(setAudioFile)}
+                                />
+                            </div>
+
+                            {blobUrl && (
+                                <div className="flex flex-row mx-auto mt-8">
+                                    <audio controls>
+                                        <source
+                                            key={blobUrl}
+                                            src={blobUrl}
+                                            type="audio/wav"
+                                        />
+                                    </audio>
+                                </div>
+                            )}
+                            <div className="flex flex-row pt-8 gap-4 mx-auto">
+                                <button
+                                    className="bg-pop-orange border-4 text-white font-semibold py-4 px-8 rounded-lg mx-auto cursor-pointer"
+                                    onClick={loadModel}
+                                >
+                                    Load Model
+                                </button>
+                                <button
+                                    className="bg-pop-orange border-4 text-white font-semibold py-4 px-8 rounded-lg mx-auto cursor-pointer"
+                                    onClick={runSession}
+                                >
+                                    Process Files
+                                </button>
+                            </div>
+                            <div className="flex flex-row py-8 gap-4 mx-auto w-3/4 xl:w-1/2">
+                                <p className={`text-3xl text-white font-bold ${vt.className}`}>{text}</p>
+                            </div>
+                        </div>
                     </div>
-                    <div className="flex flex-col py-16">
-                        <button onClick={loadModel}>Load Model</button>
-                        <button onClick={runSession}>Process Files</button>
-                    </div>
-                    <div>{text}</div>
                 </div>
             </div>
-        </div>
+        </Layout>
     );
 };
 
