@@ -19,6 +19,35 @@ export class Session {
         return Result.ok(undefined);
     }
 
+    private async loadModel(
+        model: AvailableModels
+    ): Promise<Result<Model[], Error[]>> {
+        let db = await ModelDB.create();
+        const dbModelsResult = await db.getModels(model);
+        if (dbModelsResult.isErr) {
+            return Result.err([new Error("Model not found")]);
+        }
+        const dbModels = dbModelsResult.value;
+
+        let failedModels: Error[] = [];
+        const modelResults = await Promise.all(
+            dbModels.map(async (m) => {
+                const model = await Model.fromDBModel(m.model, db);
+                if (model.isErr) {
+                    failedModels.push(model.error);
+                }
+                return model;
+            })
+        );
+        if (failedModels.length > 0) {
+            return Result.err(failedModels);
+        }
+        const models = modelResults.map((r) => r.unwrapOr(undefined)!);
+
+        return Result.ok(models);
+    }
+
+
     public async run(audio: Uint8Array): Promise<Result<string, Error>> {
         if (!this.whisperSession) {
             return Result.err(

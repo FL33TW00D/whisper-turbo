@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import { Inter, VT323 } from "@next/font/google";
 import { useState, useRef, useEffect } from "react";
-import { InferenceSession, SessionManager } from "whisper-turbo";
+import { AvailableModels, InferenceSession, SessionManager } from "whisper-turbo";
 import Layout from "../components/layout";
 
 const open_sans = Inter({ subsets: ["latin"] });
@@ -10,7 +10,7 @@ const vt = VT323({ weight: "400" , display: 'swap'});
 const Home: NextPage = () => {
     const [text, setText] = useState("");
     const session = useRef<InferenceSession | null>(null);
-    const [modelFile, setModelFile] = useState<Uint8Array | null>(null);
+    const [selectedModel, setSelectedModel] = useState<AvailableModels>(AvailableModels.WHISPER_TINY);
     const [tokenizerFile, setTokenizerFile] = useState<Uint8Array | null>(null);
     const [audioFile, setAudioFile] = useState<Uint8Array | null>(null);
 
@@ -47,13 +47,13 @@ const Home: NextPage = () => {
         if (session.current) {
             session.current.destroy();
         }
-        if (!modelFile || !tokenizerFile) {
+        if (!selectedModel || !tokenizerFile) {
             console.error("No model or tokenizer file loaded");
             return;
         }
         const manager = new SessionManager();
         const loadResult = await manager.loadModel(
-            modelFile,
+            selectedModel,
             tokenizerFile,
             () => console.log("Progress")
         );

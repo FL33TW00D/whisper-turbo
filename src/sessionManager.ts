@@ -13,8 +13,7 @@ export class SessionManager {
      *
      */
     public async loadModel(
-        modelBytes: Uint8Array,
-        tokenizerBytes: Uint8Array,
+        selectedModel: AvailableModels,
         onLoaded: (result: any) => void
     ): Promise<Result<InferenceSession, Error>> {
         console.error("Starting model load...");
@@ -36,8 +35,7 @@ export class SessionManager {
      */
     private async createSession(
         spawnWorker: boolean,
-        model: Uint8Array,
-        tokenizer: Uint8Array
+        selectedModel: AvailableModels,
     ): Promise<Result<InferenceSession, Error>> {
         if (spawnWorker && typeof document !== "undefined") {
             console.error("Spawning worker...");
@@ -47,7 +45,7 @@ export class SessionManager {
                 })
             );
             const session = await new SessionWorker();
-            const initResult = await session.initSession(model, tokenizer);
+            const initResult = await session.initSession(selectedModel);
             //@ts-ignore fucking comlink
             if (initResult.repr[0] === "Err") {
                 //@ts-ignore
@@ -56,7 +54,7 @@ export class SessionManager {
             return Result.ok(new InferenceSession(session));
         } else {
             const session = new Session();
-            const initResult = await session.initSession(model, tokenizer);
+            const initResult = await session.initSession(selectedModel);
             if (initResult.isErr) {
                 console.error("Error initializing session: ", initResult);
                 return Result.err(initResult.error);
