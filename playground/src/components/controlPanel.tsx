@@ -65,7 +65,6 @@ const ControlPanel = (props: ControlPanelProps) => {
             selectedModel,
             () => {
                 setLoaded(true);
-                toast.success("Model loaded");
                 setLoadedModel(selectedModel);
             },
             (p: number) => setProgress(p)
@@ -171,7 +170,7 @@ const ControlPanel = (props: ControlPanelProps) => {
                                 {displayModels()}
                             </ul>
                         </div>
-                        {progress > 0 && !loaded && (
+                        {progress > 0 && progress < 100 && !loaded && (
                             <div className="flex flex-col gap-2">
                                 <div className="h-3 outline outline-white bg-gray-200">
                                     <div
@@ -182,7 +181,7 @@ const ControlPanel = (props: ControlPanelProps) => {
                             </div>
                         )}
                         <div className="flex flex-row justify-end">
-                            {selectedModel != loadedModel && (
+                            {selectedModel != loadedModel && progress == 0 && (
                                 <button
                                     className="text-white text-2xl font-semibold mt-2"
                                     onClick={loadModel}
@@ -200,7 +199,7 @@ const ControlPanel = (props: ControlPanelProps) => {
                             className="bg-pop-orange text-xl outline outline-white w-full text-white font-semibold py-2 px-8 mx-auto cursor-pointer"
                             htmlFor="audioFile"
                         >
-                            <div className="flex flex-row justify-between ">
+                            <div className="flex flex-row justify-between">
                                 <span className="">
                                     {audioData && audioMetadata
                                         ? audioMetadata.name
@@ -221,14 +220,15 @@ const ControlPanel = (props: ControlPanelProps) => {
                             onChange={handleAudioFile()}
                         />
                     </div>
-                </div>
-
-                {blobUrl && (
-                    <div className="flex flex-row mx-auto mt-8">
+                    {blobUrl && (
+                        <div>
+                        <label className="text-white text-xl font-semibold">
+                            Your Audio
+                        </label>
                         <audio
                             controls
                             key={blobUrl}
-                            className="mx-auto relative"
+                            className="mx-auto w-full"
                         >
                             <source
                                 key={blobUrl}
@@ -236,11 +236,13 @@ const ControlPanel = (props: ControlPanelProps) => {
                                 type="audio/wav"
                             />
                         </audio>
-                    </div>
-                )}
+                        </div>
+                    )}
+                </div>
+
                 <div className="flex flex-row pt-8 gap-4 mx-auto">
                     <button
-                        className="bg-pop-orange text-xl outline outline-white text-white font-semibold py-2 px-6  mx-auto cursor-pointer"
+                        className="bg-pop-orange text-2xl outline outline-white text-white font-semibold py-3 px-8  mx-auto cursor-pointer active:bg-pop-orange-dark"
                         onClick={runSession}
                     >
                         Transcribe
