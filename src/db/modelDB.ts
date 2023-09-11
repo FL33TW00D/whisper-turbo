@@ -61,49 +61,29 @@ export default class ModelDB {
         url: string,
         onProgress?: (progress: number) => void
     ): Promise<Result<Uint8Array, Error>> {
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const reader = response.body!.getReader();
-            const contentLength = response.headers.get("Content-Length");
-            if (!contentLength) {
-                throw new Error("Content-Length header not found");
-            }
-            const parsedLength = parseInt(contentLength, 10);
-
-            let receivedLength = 0;
-
-            const chunks: Uint8Array[] = [];
-            for (;;) {
-                const { done, value } = await reader.read();
-
-                if (done) {
-                    break;
-                }
-
-                chunks.push(value);
-                receivedLength += value.length;
-                const progress = (receivedLength / parsedLength) * 100;
-
-                if (onProgress) {
-                    onProgress(progress);
-                }
-            }
-
-            const chunksAll = new Uint8Array(receivedLength);
-            let position = 0;
-            for (const chunk of chunks) {
-                chunksAll.set(chunk, position);
-                position += chunk.length;
-            }
-
-            return Result.ok(chunksAll); // return all chunks as Uint8Array
-        } catch (error) {
-            console.error("Fetch Error: ", error);
-            return Result.err(new Error("Fetch Error"));
+        const response = await fetch(url);
+        if (!response.ok) {
+            return Result.err(new Error(`Fetch failed: ${response.status}`));
         }
+        const contentLength = +response.headers.get("Content-Length")!;
+
+        const reader = response.body!.getReader();
+        let receivedLength = 0;
+        const chunks: Uint8Array = new Uint8Array(contentLength);
+        for (;;) {
+            const { done, value } = await reader.read();
+
+            if (done) {
+                break;
+            }
+
+            chunks.set(value, receivedLength);
+            receivedLength += value.length;
+            if (onProgress) {
+                onProgress((receivedLength / contentLength) * 100);
+            }
+        }
+        return Result.ok(chunks);
     }
 
     async _getModel(modelID: string): Promise<Result<DBModel, Error>> {
