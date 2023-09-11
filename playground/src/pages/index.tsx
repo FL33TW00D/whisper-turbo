@@ -164,7 +164,10 @@ const Home: NextPage = () => {
 
                             {blobUrl && (
                                 <div className="flex flex-row mx-auto mt-8">
-                                    <audio controls>
+                                    <audio
+                                        controls
+                                        className="mx-auto relative -z-10"
+                                    >
                                         <source
                                             key={blobUrl}
                                             src={blobUrl}
@@ -184,7 +187,7 @@ const Home: NextPage = () => {
                                     className="bg-pop-orange text-xl border-4 text-white font-semibold py-3 px-6 rounded-lg mx-auto cursor-pointer"
                                     onClick={runSession}
                                 >
-                                    Process Files
+                                    Transcribe
                                 </button>
                             </div>
                             <div className="flex flex-row pt-8 pb-24 gap-4 mx-auto w-3/4 xl:w-1/2">
