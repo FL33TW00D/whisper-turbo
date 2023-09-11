@@ -15,9 +15,10 @@ export class InferenceSession {
     }
 
     async initSession(
-        selectedModel: AvailableModels
+        selectedModel: AvailableModels,
+        onProgress: (progress: number) => void
     ): Promise<Result<void, Error>> {
-        return await this.session!.initSession(selectedModel);
+        return await this.session!.initSession(selectedModel, onProgress);
     }
 
     public async run(audio: Uint8Array): Promise<Result<string, Error>> {

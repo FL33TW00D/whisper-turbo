@@ -57,19 +57,53 @@ export default class ModelDB {
         return new ModelDB(db);
     }
 
-    private async fetchBytes(url: string): Promise<Result<Uint8Array, Error>> {
-        const run = async () => {
+    private async fetchBytes(
+        url: string,
+        onProgress?: (progress: number) => void
+    ): Promise<Result<Uint8Array, Error>> {
+        try {
             const response = await fetch(url);
-            if (response.status >= 400) {
-                throw new Error(response.statusText);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-            return response.arrayBuffer();
-        };
-        const bytes = await pRetry(run, { retries: 3 });
-        if (bytes instanceof Error) {
-            return Result.err(bytes);
+            const reader = response.body!.getReader();
+            const contentLength = response.headers.get("Content-Length");
+            if (!contentLength) {
+                throw new Error("Content-Length header not found");
+            }
+            const parsedLength = parseInt(contentLength, 10);
+
+            let receivedLength = 0;
+
+            const chunks: Uint8Array[] = [];
+            for (;;) {
+                const { done, value } = await reader.read();
+
+                if (done) {
+                    break;
+                }
+
+                chunks.push(value);
+                receivedLength += value.length;
+                const progress = (receivedLength / parsedLength) * 100;
+
+                if (onProgress) {
+                    onProgress(progress);
+                }
+            }
+
+            const chunksAll = new Uint8Array(receivedLength);
+            let position = 0;
+            for (const chunk of chunks) {
+                chunksAll.set(chunk, position);
+                position += chunk.length;
+            }
+
+            return Result.ok(chunksAll); // return all chunks as Uint8Array
+        } catch (error) {
+            console.error("Fetch Error: ", error);
+            return Result.err(new Error("Fetch Error"));
         }
-        return Result.ok(new Uint8Array(bytes));
     }
 
     async _getModel(modelID: string): Promise<Result<DBModel, Error>> {
@@ -88,7 +122,6 @@ export default class ModelDB {
     }
 
     async getTokenizer(modelID: string): Promise<Result<DBTokenizer, Error>> {
-        console.log("Getting tokenizer for model: ", modelID);
         if (!this.db) {
             return Result.err(new Error("ModelDB not initialized"));
         }
@@ -98,10 +131,8 @@ export default class ModelDB {
             "modelID",
             modelID
         );
-        console.log("Found existing tokenizer: ", tokenizer);
 
         if (!tokenizer) {
-            console.log("Fetching tokenizer from remote");
             const tokenizerBytes = await this.fetchBytes(
                 "https://huggingface.co/openai/whisper-large-v2/raw/main/tokenizer.json"
             );
@@ -109,7 +140,6 @@ export default class ModelDB {
                 return Result.err(tokenizerBytes.error);
             }
             const tokenizerBytesValue = tokenizerBytes.value;
-            console.log("Tokenizer bytes: ", tokenizerBytes);
             tokenizer = {
                 modelID,
                 bytes: tokenizerBytesValue,
@@ -125,23 +155,27 @@ export default class ModelDB {
         return Result.ok(tokenizer!);
     }
 
-    async getModel(model: AvailableModels): Promise<Result<DBModel, Error>> {
+    async getModel(
+        model: AvailableModels,
+        onProgress: (progress: number) => void
+    ): Promise<Result<DBModel, Error>> {
         if (!this.db) {
             return Result.err(new Error("ModelDB not initialized"));
         }
         let modelID = await this.db.get("availableModels", model);
-        console.log("Found existing model ID: ", modelID);
         if (!modelID) {
-            await this.fetchRemote(model);
+            await this.fetchRemote(model, onProgress);
             modelID = await this.db.get("availableModels", model);
         }
         return await this._getModel(modelID!);
     }
 
-    async fetchRemote(model: AvailableModels): Promise<Result<void, Error>> {
+    async fetchRemote(
+        model: AvailableModels,
+        onProgress: (progress: number) => void
+    ): Promise<Result<void, Error>> {
         const remoteURL = `${this.remoteUrl}/whisper-turbo/${model}-pf16-full.bin`;
-        console.log("Fetching model from: ", remoteURL);
-        const fetchResult = await this.fetchBytes(remoteURL);
+        const fetchResult = await this.fetchBytes(remoteURL, onProgress);
 
         if (fetchResult.isErr) {
             return Result.err(fetchResult.error);

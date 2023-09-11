@@ -60,8 +60,10 @@ const Home: NextPage = () => {
             return;
         }
         const manager = new SessionManager();
-        const loadResult = await manager.loadModel(selectedModel, () =>
-            setLoaded(true)
+        const loadResult = await manager.loadModel(
+            selectedModel,
+            () => setLoaded(true),
+            (x: number) => console.log("Progress: ", x)
         );
         if (loadResult.isErr) {
             toast.error(loadResult.error.message);
