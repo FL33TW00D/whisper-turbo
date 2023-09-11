@@ -3,11 +3,13 @@ import { Inter, VT323 } from "@next/font/google";
 import { useState, useRef, useEffect } from "react";
 import {
     AvailableModels,
+    ModelSizes,
     InferenceSession,
     SessionManager,
 } from "whisper-turbo";
 import Layout from "../components/layout";
 import toast from "react-hot-toast";
+import { humanFileSize } from "../util";
 
 const open_sans = Inter({ subsets: ["latin"] });
 const vt = VT323({ weight: "400", display: "swap" });
@@ -79,6 +81,26 @@ const Home: NextPage = () => {
         });
     };
 
+    const displayModels = () => {
+        const models = Object.values(AvailableModels);
+        const sizes = Array.from(ModelSizes.values());
+        const zipped = models.map((model, i) => [model, sizes[i]]);
+        return zipped.map((model, idx) => (
+            <li key={model[0] as string}>
+                <a
+                    className={`bg-orange-500 hover:bg-pop-orange py-2 font-medium text-lg text-center block whitespace-no-wrap cursor-pointer ${
+                        idx === zipped.length - 1 ? "rounded-b" : ""
+                    }`}
+                    onClick={() => {
+                        setSelectedModel(model[0]);
+                    }}
+                >
+                    {fmtModel(model[0])} - {humanFileSize(model[1] as number)}
+                </a>
+            </li>
+        ));
+    };
+
     const fmtModel = (model: AvailableModels) => {
         let name = model.split("-")[1];
         name = name.charAt(0).toUpperCase() + name.slice(1);
@@ -101,12 +123,15 @@ const Home: NextPage = () => {
                                     )
                                 }
                             />
+
                             <div className="flex flex-row mx-auto">
-                                <div className="p-20">
+                                <div className="p-4">
                                     <div className="group inline-block relative">
-                                        <button className="bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded inline-flex items-center">
+                                        <button className="bg-pop-orange text-white font-semibold text-xl py-2 px-8 rounded inline-flex items-center border-2">
                                             <span className="mr-1">
-                                                Dropdown
+                                                {selectedModel
+                                                    ? fmtModel(selectedModel)
+                                                    : "Select Model"}
                                             </span>
                                             <svg
                                                 className="fill-current h-4 w-4"
@@ -116,23 +141,13 @@ const Home: NextPage = () => {
                                                 <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
                                             </svg>
                                         </button>
-                                        <ul className="absolute hidden text-gray-700 pt-1 group-hover:block">
-                                            <li className="">
-                                                {Object.values(
-                                                    AvailableModels
-                                                ).map((model) => (
-                                                    <a
-                                                        className="rounded-t bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap"
-                                                        href="#"
-                                                    >
-                                                        {fmtModel(model)}
-                                                    </a>
-                                                ))}
-                                            </li>
+                                        <ul className="absolute hidden text-white group-hover:block w-full">
+                                            {displayModels()}
                                         </ul>
                                     </div>
                                 </div>
-
+                            </div>
+                            <div className="flex flex-row mx-auto">
                                 <label
                                     className="bg-pop-orange text-xl border-4 text-white font-semibold py-3 px-6 rounded-lg mx-auto cursor-pointer"
                                     htmlFor="audioFile"

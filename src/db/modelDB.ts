@@ -124,5 +124,8 @@ export default class ModelDB {
         return await this._getModel(modelID!);
     }
 
-    async fetchRemote(model: AvailableModels): Promise<Result<void, Error>> {}
+    async fetchRemote(model: AvailableModels): Promise<Result<void, Error>> {
+        const _ = model;
+        return Result.ok(undefined);
+    }
 }
