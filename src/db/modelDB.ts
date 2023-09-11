@@ -103,15 +103,15 @@ export default class ModelDB {
         );
 
         if (!tokenizer) {
-            return Result.err(new Error(`Tokenizer not found for model ID: ${modelID}`));
+            return Result.err(
+                new Error(`Tokenizer not found for model ID: ${modelID}`)
+            );
         }
 
         return Result.ok(tokenizer);
     }
 
-    async getModel(
-        model: AvailableModels
-    ): Promise<Result<DBModel, Error>> {
+    async getModel(model: AvailableModels): Promise<Result<DBModel, Error>> {
         if (!this.db) {
             return Result.err(new Error("ModelDB not initialized"));
         }
@@ -124,7 +124,5 @@ export default class ModelDB {
         return await this._getModel(modelID!);
     }
 
-    async fetchRemote(model: AvailableModels): Promise<Result<void, Error>> {
-
-    }
+    async fetchRemote(model: AvailableModels): Promise<Result<void, Error>> {}
 }
