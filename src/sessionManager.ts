@@ -17,7 +17,7 @@ export class SessionManager {
         onLoaded: (result: any) => void
     ): Promise<Result<InferenceSession, Error>> {
         const creationResult = await this.createSession(true, selectedModel);
-        if(creationResult.isErr){
+        if (creationResult.isErr) {
             return Result.err(creationResult.error);
         }
         onLoaded(creationResult.value);
@@ -34,23 +34,29 @@ export class SessionManager {
      */
     private async createSession(
         spawnWorker: boolean,
-        selectedModel: AvailableModels,
+        selectedModel: AvailableModels
     ): Promise<Result<InferenceSession, Error>> {
         if (spawnWorker && typeof document !== "undefined") {
             console.error("Spawning worker...");
-            const SessionWorker = Comlink.wrap<typeof Session>(
-                new Worker(new URL("./session.worker.js", import.meta.url), {
+            const worker = new Worker(
+                new URL("./session.worker.js", import.meta.url),
+                {
                     type: "module",
-                })
+                }
             );
+            const SessionWorker = Comlink.wrap<typeof Session>(worker);
             const session = await new SessionWorker();
             const initResult = await session.initSession(selectedModel);
-            //@ts-ignore fucking comlink
-            if (initResult.repr[0] === "Err") {
-                //@ts-ignore
-                return Result.err(new Error("Session initialization failed: " + initResult.repr[1]));
+            //@ts-ignore
+            const [state, data] = initResult.repr;
+            if (state === "Err") {
+                return Result.err(
+                    new Error(
+                        "Session initialization failed: " + data.toString()
+                    )
+                );
             }
-            return Result.ok(new InferenceSession(session));
+            return Result.ok(new InferenceSession(session, worker));
         } else {
             const session = new Session();
             const initResult = await session.initSession(selectedModel);
@@ -62,4 +68,3 @@ export class SessionManager {
         }
     }
 }
-

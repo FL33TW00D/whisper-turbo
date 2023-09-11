@@ -140,7 +140,7 @@ const Home: NextPage = () => {
                                                 <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
                                             </svg>
                                         </button>
-                                        <ul className="absolute hidden text-white group-hover:block w-full">
+                                        <ul className="absolute hidden text-white group-hover:block w-full z-10">
                                             {displayModels()}
                                         </ul>
                                     </div>
@@ -166,7 +166,8 @@ const Home: NextPage = () => {
                                 <div className="flex flex-row mx-auto mt-8">
                                     <audio
                                         controls
-                                        className="mx-auto relative -z-10"
+                                        key={blobUrl}
+                                        className="mx-auto relative"
                                     >
                                         <source
                                             key={blobUrl}
@@ -200,7 +201,7 @@ const Home: NextPage = () => {
                         </div>
                     </div>
                 </div>
-                <div className="footer w-full text-2xl text-center mt-10 pt-3 text-white">
+                <div className="footer w-full text-2xl text-center mt-3 pt-3 text-white">
                     <h5>
                         Created by{" "}
                         <a
