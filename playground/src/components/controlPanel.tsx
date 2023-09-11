@@ -121,7 +121,7 @@ const ControlPanel = (props: ControlPanelProps) => {
     };
     return (
         <div className="flex-1 w-1/2 h-full flex flex-col relative z-10 overflow-scroll">
-            <div className="h-full px-4 xl:px-16 my-4">
+            <div className="h-full px-4 xl:pl-32 my-4">
                 <img
                     src="/whisper-turbo.png"
                     className="w-full xl:w-3/4 2xl:w-1/2 mx-auto py-8 cursor-pointer"
@@ -184,7 +184,7 @@ const ControlPanel = (props: ControlPanelProps) => {
                         <div className="flex flex-row justify-end">
                             {selectedModel != loadedModel && (
                                 <button
-                                    className="text-white text-xl font-semibold mt-2"
+                                    className="text-white text-2xl font-semibold mt-2"
                                     onClick={loadModel}
                                 >
                                     Load
