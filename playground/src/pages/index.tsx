@@ -21,6 +21,7 @@ const Home: NextPage = () => {
     );
     const [audioFile, setAudioFile] = useState<Uint8Array | null>(null);
     const [loaded, setLoaded] = useState<boolean>(false);
+    const [progress, setProgress] = useState<number>(0);
 
     const handleFileChange = (setFileState: any) => async (event: any) => {
         const file = event.target.files[0];
@@ -63,7 +64,7 @@ const Home: NextPage = () => {
         const loadResult = await manager.loadModel(
             selectedModel,
             () => setLoaded(true),
-            (x: number) => console.log("Progress: ", x)
+            (p: number) => setProgress(p)
         );
         if (loadResult.isErr) {
             toast.error(loadResult.error.message);
@@ -125,27 +126,31 @@ const Home: NextPage = () => {
                                 }
                             />
 
-                            <div className="flex flex-row mx-auto">
-                                <div className="p-4">
-                                    <div className="group inline-block relative">
-                                        <button className="bg-pop-orange text-white font-semibold text-xl py-2 px-8 rounded inline-flex items-center border-2">
-                                            <span className="mr-1">
-                                                {selectedModel
-                                                    ? fmtModel(selectedModel)
-                                                    : "Select Model"}
-                                            </span>
-                                            <svg
-                                                className="fill-current h-4 w-4"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                viewBox="0 0 20 20"
-                                            >
-                                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                                            </svg>
-                                        </button>
-                                        <ul className="absolute hidden text-white group-hover:block w-full z-10">
-                                            {displayModels()}
-                                        </ul>
-                                    </div>
+                            <div className="flex flex-col mx-auto my-4">
+                                <div className="group inline-block relative">
+                                    <button className="bg-pop-orange text-white font-semibold text-xl py-2 px-8 rounded inline-flex items-center border-2">
+                                        <span className="mr-1">
+                                            {selectedModel
+                                                ? fmtModel(selectedModel)
+                                                : "Select Model"}
+                                        </span>
+                                        <svg
+                                            className="fill-current h-4 w-4"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 20 20"
+                                        >
+                                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                                        </svg>
+                                    </button>
+                                    <ul className="absolute hidden text-white group-hover:block w-full z-10">
+                                        {displayModels()}
+                                    </ul>
+                                </div>
+                                <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                    <div
+                                        className="bg-blue-600 h-2.5 rounded-full"
+                                        style={{ width: `${progress}%` }}
+                                    ></div>
                                 </div>
                             </div>
                             <div className="flex flex-row mx-auto">
