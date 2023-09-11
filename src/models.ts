@@ -34,13 +34,15 @@ export class Model {
         db: ModelDB
     ): Promise<Result<Model, Error>> {
         const tokenizerResult = await db.getTokenizer(dbModel.ID);
-        let tokenizerBytes: Uint8Array | undefined = undefined;
-        if (tokenizerResult.isOk) {
-            tokenizerBytes = tokenizerResult.value.bytes;
+        console.log("Tokenizer result: ", tokenizerResult);
+        if (tokenizerResult.isErr) {
+            return Result.err(tokenizerResult.error);
         }
+        const tokenizerBytes = tokenizerResult.value.bytes;
+        console.log("Tokenizer bytes:", tokenizerBytes);
 
         return Result.ok(
-            new Model(dbModel.name, dbModel.bytes, tokenizerBytes!)
+            new Model(dbModel.name, dbModel.bytes, tokenizerBytes)
         );
     }
 }

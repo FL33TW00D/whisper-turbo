@@ -1,5 +1,5 @@
 import type { NextPage } from "next";
-import { Inter, VT323 } from "@next/font/google";
+import { VT323 } from "@next/font/google";
 import { useState, useRef, useEffect } from "react";
 import {
     AvailableModels,
@@ -11,14 +11,13 @@ import Layout from "../components/layout";
 import toast from "react-hot-toast";
 import { humanFileSize } from "../util";
 
-const open_sans = Inter({ subsets: ["latin"] });
 const vt = VT323({ weight: "400", display: "swap" });
 
 const Home: NextPage = () => {
     const [text, setText] = useState("");
     const session = useRef<InferenceSession | null>(null);
-    const [selectedModel, setSelectedModel] = useState<AvailableModels>(
-        AvailableModels.WHISPER_TINY
+    const [selectedModel, setSelectedModel] = useState<AvailableModels | null>(
+        null
     );
     const [audioFile, setAudioFile] = useState<Uint8Array | null>(null);
     const [loaded, setLoaded] = useState<boolean>(false);

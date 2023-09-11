@@ -1,7 +1,7 @@
 import { DBSchema, IDBPDatabase, openDB } from "idb/with-async-ittr";
 import { v4 as uuidv4 } from "uuid";
 import { DBModel, DBTokenizer } from "./types";
-import { AvailableModels, Model } from "../models";
+import { AvailableModels } from "../models";
 import { Result } from "true-myth";
 import pRetry from "p-retry";
 
@@ -33,10 +33,6 @@ interface ModelDBSchema extends DBSchema {
  * Example usage:
  *
  * ```typescript
- * const modelDB = new ModelDB();
- * await modelDB.init();
- * const model = await modelDB.getModels(AvailableModels.XYZ);
- * console.log(model);
  * ```
  */
 export default class ModelDB {
@@ -50,10 +46,11 @@ export default class ModelDB {
     public static async create(): Promise<ModelDB> {
         const db = await openDB<ModelDBSchema>("models", 1, {
             upgrade(db) {
-                db.createObjectStore("models");
+                const modelStore = db.createObjectStore("models");
+                modelStore.createIndex("modelID", "modelID");
                 db.createObjectStore("availableModels");
-                const tokenizer_store = db.createObjectStore("tokenizer");
-                tokenizer_store.createIndex("modelID", "modelID");
+                const tokenizerStore = db.createObjectStore("tokenizer");
+                tokenizerStore.createIndex("modelID", "modelID");
             },
         });
 
@@ -81,9 +78,8 @@ export default class ModelDB {
         }
 
         const tx = this.db.transaction("models", "readonly");
-        const index = tx.store.index("modelID");
-        const model = await index.get(modelID);
-        await tx.done;
+        const store = tx.objectStore("models");
+        const model = await store.get(modelID);
 
         if (!model) {
             return Result.err(new Error("Model not found"));
@@ -92,23 +88,41 @@ export default class ModelDB {
     }
 
     async getTokenizer(modelID: string): Promise<Result<DBTokenizer, Error>> {
+        console.log("Getting tokenizer for model: ", modelID);
         if (!this.db) {
             return Result.err(new Error("ModelDB not initialized"));
         }
 
-        const tokenizer = await this.db.getFromIndex(
+        let tokenizer = await this.db.getFromIndex(
             "tokenizer",
             "modelID",
-            modelID.toString()
+            modelID
         );
+        console.log("Found existing tokenizer: ", tokenizer);
 
         if (!tokenizer) {
-            return Result.err(
-                new Error(`Tokenizer not found for model ID: ${modelID}`)
+            console.log("Fetching tokenizer from remote");
+            const tokenizerBytes = await this.fetchBytes(
+                "https://huggingface.co/openai/whisper-large-v2/raw/main/tokenizer.json"
+            );
+            if (tokenizerBytes.isErr) {
+                return Result.err(tokenizerBytes.error);
+            }
+            const tokenizerBytesValue = tokenizerBytes.value;
+            console.log("Tokenizer bytes: ", tokenizerBytes);
+            tokenizer = {
+                modelID,
+                bytes: tokenizerBytesValue,
+            };
+            this.db.put("tokenizer", tokenizer, modelID);
+            tokenizer = await this.db.getFromIndex(
+                "tokenizer",
+                "modelID",
+                modelID
             );
         }
 
-        return Result.ok(tokenizer);
+        return Result.ok(tokenizer!);
     }
 
     async getModel(model: AvailableModels): Promise<Result<DBModel, Error>> {
@@ -125,7 +139,21 @@ export default class ModelDB {
     }
 
     async fetchRemote(model: AvailableModels): Promise<Result<void, Error>> {
-        const _ = model;
+        const remoteURL = `${this.remoteUrl}/whisper-turbo/${model}-pf16-full.bin`;
+        console.log("Fetching model from: ", remoteURL);
+        const fetchResult = await this.fetchBytes(remoteURL);
+
+        if (fetchResult.isErr) {
+            return Result.err(fetchResult.error);
+        }
+        const data = fetchResult.value;
+
+        const modelID = uuidv4();
+        this.db!.put("availableModels", modelID, model);
+        const dbModel = { name: model, ID: modelID, bytes: data };
+        this.db!.put("models", dbModel, modelID);
+        this.getTokenizer(modelID);
+
         return Result.ok(undefined);
     }
 }

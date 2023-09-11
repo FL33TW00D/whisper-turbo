@@ -19,6 +19,7 @@ export class Session {
             );
         }
         const modelResult = await this.loadModel(selectedModel);
+        console.log("Loaded model result: ", modelResult);
         if (modelResult.isErr) {
             return Result.err(modelResult.error);
         }
