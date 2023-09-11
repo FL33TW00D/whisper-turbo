@@ -86,6 +86,7 @@ export class Session {
             );
         }
 
+        console.log("Passing this audio to rust: ", audio);
         return Result.ok(await this.whisperSession.stream(audio, callback));
     }
 }

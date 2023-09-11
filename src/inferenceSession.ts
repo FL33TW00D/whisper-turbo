@@ -44,7 +44,7 @@ export class InferenceSession {
 
     public destroy(): void {
         if (this.innerWorker !== null) {
-            console.log("Terminating worker");
+            console.warn("Terminating worker");
             this.innerWorker.terminate();
         }
         this.session = null;

@@ -20,40 +20,37 @@ const ControlPanel = (props: ControlPanelProps) => {
     const [loadedModel, setLoadedModel] = useState<AvailableModels | null>(
         null
     );
-    const [audioFile, setAudioFile] = useState<Uint8Array | null>(null);
+    const [audioData, setAudioData] = useState<Uint8Array | null>(null);
+    const [audioMetadata, setAudioMetadata] = useState<File | null>(null);
     const [loaded, setLoaded] = useState<boolean>(false);
     const [progress, setProgress] = useState<number>(0);
+    const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
 
-    const handleFileChange = (setFileState: any) => async (event: any) => {
+    const handleAudioFile = () => async (event: any) => {
         const file = event.target.files[0];
         if (!file) {
             return;
         }
         const reader = new FileReader();
         reader.onload = () => {
-            setFileState(new Uint8Array(reader.result as ArrayBuffer));
+            setAudioData(new Uint8Array(reader.result as ArrayBuffer));
+            setAudioMetadata(file);
         };
         reader.readAsArrayBuffer(file);
     };
 
-    useEffect(() => {
-        toast.success("Loaded model");
-    }, [loaded]);
-
-    // Somewhere in the state of your component...
     const [blobUrl, setBlobUrl] = useState<string | null>(null);
 
-    // When the audio file is uploaded, create a new Blob URL
     useEffect(() => {
-        if (audioFile) {
-            const blob = new Blob([audioFile], { type: "audio/wav" }); // set type to audio type of your data
+        if (audioData) {
+            const blob = new Blob([audioData], { type: "audio/wav" });
             const url = URL.createObjectURL(blob);
             setBlobUrl(url);
             return () => {
                 URL.revokeObjectURL(url);
             };
         }
-    }, [audioFile]);
+    }, [audioData]);
 
     const loadModel = async () => {
         if (session.current) {
@@ -68,6 +65,7 @@ const ControlPanel = (props: ControlPanelProps) => {
             selectedModel,
             () => {
                 setLoaded(true);
+                toast.success("Model loaded");
                 setLoadedModel(selectedModel);
             },
             (p: number) => setProgress(p)
@@ -84,12 +82,12 @@ const ControlPanel = (props: ControlPanelProps) => {
             toast.error("No model loaded");
             return;
         }
-        if (!audioFile) {
+        if (!audioData) {
             toast.error("No audio file loaded");
             return;
         }
-        console.log("Audio file", audioFile);
-        await session.current.stream(audioFile!, (decoded: string) => {
+        console.log("Audio file", audioData);
+        await session.current.stream(audioData!, (decoded: string) => {
             props.setText(decoded);
         });
     };
@@ -106,6 +104,7 @@ const ControlPanel = (props: ControlPanelProps) => {
                     }`}
                     onClick={() => {
                         setSelectedModel(model[0] as AvailableModels);
+                        setDropdownOpen(false);
                     }}
                 >
                     {fmtModel(model[0] as AvailableModels)}{" "}
@@ -146,7 +145,10 @@ const ControlPanel = (props: ControlPanelProps) => {
                             )}
                         </div>
                         <div className="group inline-block relative w-full">
-                            <button className="bg-pop-orange text-white font-semibold text-xl py-2 px-8 w-full inline-flex items-center outline outline-white">
+                            <button
+                                className="bg-pop-orange text-white font-semibold text-xl py-2 px-8 w-full inline-flex items-center outline outline-white"
+                                onClick={() => setDropdownOpen(!dropdownOpen)}
+                            >
                                 <span className="mr-1">
                                     {selectedModel
                                         ? fmtModel(selectedModel)
@@ -160,7 +162,12 @@ const ControlPanel = (props: ControlPanelProps) => {
                                     <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
                                 </svg>
                             </button>
-                            <ul className="absolute hidden text-white group-hover:block z-10 w-full">
+                            <ul
+                                className="absolute text-white group-hover:block z-10 w-full"
+                                style={{
+                                    display: dropdownOpen ? "block" : "none",
+                                }}
+                            >
                                 {displayModels()}
                             </ul>
                         </div>
@@ -177,7 +184,7 @@ const ControlPanel = (props: ControlPanelProps) => {
                         <div className="flex flex-row justify-end">
                             {selectedModel != loadedModel && (
                                 <button
-                                    className="text-white text-xl font-semibold"
+                                    className="text-white text-xl font-semibold mt-2"
                                     onClick={loadModel}
                                 >
                                     Load
@@ -195,10 +202,14 @@ const ControlPanel = (props: ControlPanelProps) => {
                         >
                             <div className="flex flex-row justify-between ">
                                 <span className="">
-                                    {audioFile ? "jfk.wav" : "Select File"}
+                                    {audioData && audioMetadata
+                                        ? audioMetadata.name
+                                        : `Select Audio File`}
                                 </span>
-                                <span className="text-sm my-auto">
-                                    {audioFile ? audioFile.length : ""}
+                                <span className="my-auto">
+                                    {audioData
+                                        ? humanFileSize(audioData.length)
+                                        : ""}
                                 </span>
                             </div>
                         </label>
@@ -207,7 +218,7 @@ const ControlPanel = (props: ControlPanelProps) => {
                             className="hidden"
                             name="audioFile"
                             id="audioFile"
-                            onChange={handleFileChange(setAudioFile)}
+                            onChange={handleAudioFile()}
                         />
                     </div>
                 </div>
