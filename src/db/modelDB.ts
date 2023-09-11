@@ -61,29 +61,34 @@ export default class ModelDB {
         url: string,
         onProgress?: (progress: number) => void
     ): Promise<Result<Uint8Array, Error>> {
-        const response = await fetch(url);
-        if (!response.ok) {
-            return Result.err(new Error(`Fetch failed: ${response.status}`));
-        }
-        const contentLength = +response.headers.get("Content-Length")!;
-
-        const reader = response.body!.getReader();
-        let receivedLength = 0;
-        const chunks: Uint8Array = new Uint8Array(contentLength);
-        for (;;) {
-            const { done, value } = await reader.read();
-
-            if (done) {
-                break;
+        const run = async () => {
+            const response = await fetch(url);
+            if (!response.ok) {
+                return Result.err<Uint8Array, Error>(
+                    new Error(`Fetch failed: ${response.status}`)
+                );
             }
+            const contentLength = +response.headers.get("Content-Length")!;
 
-            chunks.set(value, receivedLength);
-            receivedLength += value.length;
-            if (onProgress) {
-                onProgress((receivedLength / contentLength) * 100);
+            const reader = response.body!.getReader();
+            let receivedLength = 0;
+            const chunks: Uint8Array = new Uint8Array(contentLength);
+            for (;;) {
+                const { done, value } = await reader.read();
+
+                if (done) {
+                    break;
+                }
+
+                chunks.set(value, receivedLength);
+                receivedLength += value.length;
+                if (onProgress) {
+                    onProgress((receivedLength / contentLength) * 100);
+                }
             }
-        }
-        return Result.ok(chunks);
+            return Result.ok<Uint8Array, Error>(chunks);
+        };
+        return await pRetry(run, { retries: 3 });
     }
 
     async _getModel(modelID: string): Promise<Result<DBModel, Error>> {
