@@ -1,3 +1,3 @@
 export { InferenceSession } from "./inferenceSession";
-export { AvailableModels } from "./models";
+export { AvailableModels, ModelSizes } from "./models";
 export { SessionManager } from "./sessionManager";

@@ -1,22 +1,65 @@
 import * as whisper from "whisper-webgpu";
 import * as Comlink from "comlink";
 import { Result } from "true-myth";
+import { AvailableModels, Model } from "./models";
+import ModelDB from "./db/modelDB";
 
 export class Session {
     whisperSession: whisper.Session | undefined;
 
     public async initSession(
-        model_bytes: Uint8Array,
-        tok_bytes: Uint8Array
+        selectedModel: AvailableModels
     ): Promise<Result<void, Error>> {
+        console.error("Initializing session with model: ", selectedModel);
+        if (this.whisperSession) {
+            return Result.err(
+                new Error(
+                    "Session already initialized. Call `destroy()` first."
+                )
+            );
+        }
+        const modelResult = await this.loadModel(selectedModel);
+        console.log("Loaded model result: ", modelResult);
+        if (modelResult.isErr) {
+            return Result.err(modelResult.error);
+        }
+        const model = modelResult.value;
+        console.log("Loaded model: ", model);
         await whisper.default();
         const builder = new whisper.SessionBuilder();
         const session = await builder
-            .setModel(model_bytes)
-            .setTokenizer(tok_bytes)
+            .setModel(model.data)
+            .setTokenizer(model.tokenizer)
             .build();
         this.whisperSession = session;
         return Result.ok(undefined);
+    }
+
+    private async loadModel(
+        selectedModel: AvailableModels
+    ): Promise<Result<Model, Error>> {
+        const db = await ModelDB.create(); //TODO: don't create a new db every time
+        const dbResult = await db.getModel(selectedModel);
+        if (dbResult.isErr) {
+            return Result.err(
+                new Error(
+                    `Failed to load model ${selectedModel} with error: ${dbResult.error}`
+                )
+            );
+        }
+        const dbModel = dbResult.value;
+
+        const modelResult = await Model.fromDBModel(dbModel, db);
+
+        if (modelResult.isErr) {
+            return Result.err(
+                new Error(
+                    `Failed to transmute model ${selectedModel} with error: ${modelResult.error}`
+                )
+            );
+        }
+        const model = modelResult.value;
+        return Result.ok(model);
     }
 
     public async run(audio: Uint8Array): Promise<Result<string, Error>> {
@@ -29,6 +72,21 @@ export class Session {
         }
 
         return Result.ok(await this.whisperSession.run(audio));
+    }
+
+    public async stream(
+        audio: Uint8Array,
+        callback: (decoded: string) => void
+    ): Promise<Result<void, Error>> {
+        if (!this.whisperSession) {
+            return Result.err(
+                new Error(
+                    "The session is not initialized. Call `initSession()` method first."
+                )
+            );
+        }
+
+        return Result.ok(await this.whisperSession.stream(audio, callback));
     }
 }
 

@@ -1,18 +1,26 @@
 import type { NextPage } from "next";
-import { Inter, VT323 } from "@next/font/google";
+import { VT323 } from "@next/font/google";
 import { useState, useRef, useEffect } from "react";
-import { InferenceSession, SessionManager } from "whisper-turbo";
+import {
+    AvailableModels,
+    ModelSizes,
+    InferenceSession,
+    SessionManager,
+} from "whisper-turbo";
 import Layout from "../components/layout";
+import toast from "react-hot-toast";
+import { humanFileSize } from "../util";
 
-const open_sans = Inter({ subsets: ["latin"] });
-const vt = VT323({ weight: "400" , display: 'swap'});
+const vt = VT323({ weight: "400", display: "swap" });
 
 const Home: NextPage = () => {
     const [text, setText] = useState("");
     const session = useRef<InferenceSession | null>(null);
-    const [modelFile, setModelFile] = useState<Uint8Array | null>(null);
-    const [tokenizerFile, setTokenizerFile] = useState<Uint8Array | null>(null);
+    const [selectedModel, setSelectedModel] = useState<AvailableModels | null>(
+        null
+    );
     const [audioFile, setAudioFile] = useState<Uint8Array | null>(null);
+    const [loaded, setLoaded] = useState<boolean>(false);
 
     const handleFileChange = (setFileState: any) => async (event: any) => {
         const file = event.target.files[0];
@@ -47,18 +55,16 @@ const Home: NextPage = () => {
         if (session.current) {
             session.current.destroy();
         }
-        if (!modelFile || !tokenizerFile) {
-            console.error("No model or tokenizer file loaded");
+        if (!selectedModel) {
+            console.error("No model loaded");
             return;
         }
         const manager = new SessionManager();
-        const loadResult = await manager.loadModel(
-            modelFile,
-            tokenizerFile,
-            () => console.log("Progress")
+        const loadResult = await manager.loadModel(selectedModel, () =>
+            setLoaded(true)
         );
         if (loadResult.isErr) {
-            console.error(loadResult.error);
+            toast.error(loadResult.error.message);
         } else {
             session.current = loadResult.value;
         }
@@ -66,57 +72,83 @@ const Home: NextPage = () => {
 
     const runSession = async () => {
         if (!session.current) {
-            console.error("No session loaded");
+            toast.error("No model loaded");
             return;
         }
-        const inferenceResult = await session.current.run(audioFile!);
-        console.log(inferenceResult);
-        inferenceResult.repr[0] == "Ok"
-            ? setText(inferenceResult.repr[1])
-            : console.error(inferenceResult);
+        await session.current.stream(audioFile!, (decoded: string) => {
+            setText(decoded);
+        });
+    };
+
+    const displayModels = () => {
+        const models = Object.values(AvailableModels);
+        const sizes = Array.from(ModelSizes.values());
+        const zipped = models.map((model, i) => [model, sizes[i]]);
+        return zipped.map((model, idx) => (
+            <li key={model[0] as string}>
+                <a
+                    className={`bg-orange-500 hover:bg-pop-orange py-2 font-medium text-lg text-center block whitespace-no-wrap cursor-pointer ${
+                        idx === zipped.length - 1 ? "rounded-b" : ""
+                    }`}
+                    onClick={() => {
+                        setSelectedModel(model[0]);
+                    }}
+                >
+                    {fmtModel(model[0])} - {humanFileSize(model[1] as number)}
+                </a>
+            </li>
+        ));
+    };
+
+    const fmtModel = (model: AvailableModels) => {
+        let name = model.split("-")[1];
+        name = name.charAt(0).toUpperCase() + name.slice(1);
+        return name;
     };
 
     return (
         <Layout title={"Whisper Turbo"}>
-            <div className={`p-0 ${open_sans.className}`}>
+            <div className={`p-0 ${vt.className}`}>
                 <div className="flex-1 flex flex-col relative z-10 overflow-scroll">
                     <div className="flex flex-row h-screen">
                         <div className="flex flex-col p-12 w-full mx-auto">
                             <img
                                 src="/whisper-turbo.png"
-                                className="w-1/2 xl:w-1/3 mx-auto pb-8"
+                                className="w-1/2 xl:w-1/3 mx-auto pb-8 cursor-pointer"
+                                onClick={() =>
+                                    window.open(
+                                        "https://github.com/FL33TW00D/whisper-turbo",
+                                        "_blank"
+                                    )
+                                }
                             />
+
+                            <div className="flex flex-row mx-auto">
+                                <div className="p-4">
+                                    <div className="group inline-block relative">
+                                        <button className="bg-pop-orange text-white font-semibold text-xl py-2 px-8 rounded inline-flex items-center border-2">
+                                            <span className="mr-1">
+                                                {selectedModel
+                                                    ? fmtModel(selectedModel)
+                                                    : "Select Model"}
+                                            </span>
+                                            <svg
+                                                className="fill-current h-4 w-4"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 20 20"
+                                            >
+                                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                                            </svg>
+                                        </button>
+                                        <ul className="absolute hidden text-white group-hover:block w-full z-10">
+                                            {displayModels()}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
                             <div className="flex flex-row mx-auto">
                                 <label
-                                    className="bg-pop-orange border-y-4 border-l-4 text-white font-semibold py-4 px-8 rounded-l-lg mx-auto cursor-pointer"
-                                    htmlFor="modelFile"
-                                >
-                                    Model File
-                                </label>
-                                <input
-                                    type="file"
-                                    className="hidden"
-                                    name="modelFile"
-                                    id="modelFile"
-                                    onChange={handleFileChange(setModelFile)}
-                                />
-                                <label
-                                    className="bg-pop-orange border-y-4 text-white font-semibold py-4 px-8 mx-auto cursor-pointer"
-                                    htmlFor="tokenizerFile"
-                                >
-                                    Tokenizer File
-                                </label>
-                                <input
-                                    type="file"
-                                    className="hidden"
-                                    name="tokenizerFile"
-                                    id="tokenizerFile"
-                                    onChange={handleFileChange(
-                                        setTokenizerFile
-                                    )}
-                                />
-                                <label
-                                    className="bg-pop-orange border-y-4 border-r-4 text-white font-semibold py-4 px-8 rounded-r-lg mx-auto cursor-pointer"
+                                    className="bg-pop-orange text-xl border-4 text-white font-semibold py-3 px-6 rounded-lg mx-auto cursor-pointer"
                                     htmlFor="audioFile"
                                 >
                                     Audio File
@@ -132,7 +164,11 @@ const Home: NextPage = () => {
 
                             {blobUrl && (
                                 <div className="flex flex-row mx-auto mt-8">
-                                    <audio controls>
+                                    <audio
+                                        controls
+                                        key={blobUrl}
+                                        className="mx-auto relative"
+                                    >
                                         <source
                                             key={blobUrl}
                                             src={blobUrl}
@@ -143,23 +179,39 @@ const Home: NextPage = () => {
                             )}
                             <div className="flex flex-row pt-8 gap-4 mx-auto">
                                 <button
-                                    className="bg-pop-orange border-4 text-white font-semibold py-4 px-8 rounded-lg mx-auto cursor-pointer"
+                                    className="bg-pop-orange text-xl border-4 text-white font-semibold py-3 px-6 rounded-lg mx-auto cursor-pointer"
                                     onClick={loadModel}
                                 >
                                     Load Model
                                 </button>
                                 <button
-                                    className="bg-pop-orange border-4 text-white font-semibold py-4 px-8 rounded-lg mx-auto cursor-pointer"
+                                    className="bg-pop-orange text-xl border-4 text-white font-semibold py-3 px-6 rounded-lg mx-auto cursor-pointer"
                                     onClick={runSession}
                                 >
-                                    Process Files
+                                    Transcribe
                                 </button>
                             </div>
-                            <div className="flex flex-row py-8 gap-4 mx-auto w-3/4 xl:w-1/2">
-                                <p className={`text-3xl text-white font-bold ${vt.className}`}>{text}</p>
+                            <div className="flex flex-row pt-8 pb-24 gap-4 mx-auto w-3/4 xl:w-1/2">
+                                <p
+                                    className={`text-2xl text-white font-bold ${vt.className}`}
+                                >
+                                    {text}
+                                </p>
                             </div>
                         </div>
                     </div>
+                </div>
+                <div className="footer w-full text-2xl text-center mt-3 pt-3 text-white">
+                    <h5>
+                        Created by{" "}
+                        <a
+                            href="https://twitter.com/fleetwood___"
+                            className="underline hover:text-pop-orange
+                            transition duration-100 ease-in-out"
+                        >
+                            @fleetwood
+                        </a>
+                    </h5>
                 </div>
             </div>
         </Layout>
