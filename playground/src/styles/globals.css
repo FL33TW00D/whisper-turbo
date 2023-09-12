@@ -43,3 +43,17 @@ body {
         rgb(var(--background-start-rgb));
 }
 
+audio::-webkit-media-controls-current-time-display {
+    font-family: "__VT323_2a9463";
+    font-size: 1.2rem;
+}
+
+audio::-webkit-media-controls-time-remaining-display {
+    font-family: "__VT323_2a9463";
+    font-size: 1.2rem;
+}
+
+audio::-webkit-media-controls-enclosure {
+    border-radius: 0;
+    border: 2px solid black;
+}

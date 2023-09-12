@@ -123,7 +123,7 @@ const ControlPanel = (props: ControlPanelProps) => {
             <div className="h-full px-4 xl:pl-32 my-4">
                 <img
                     src="/whisper-turbo.png"
-                    className="w-full xl:w-3/4 2xl:w-1/2 mx-auto py-8 cursor-pointer"
+                    className="w-full xl:w-3/4 2xl:w-1/2 mx-auto pt-8 pb-4 cursor-pointer"
                     onClick={() =>
                         window.open(
                             "https://github.com/FL33TW00D/whisper-turbo",
@@ -131,7 +131,7 @@ const ControlPanel = (props: ControlPanelProps) => {
                         )
                     }
                 />
-                <div className="flex flex-col mx-auto gap-8">
+                <div className="flex flex-col mx-auto gap-6">
                     <div>
                         <div className="flex flex-row justify-between">
                             <label className="text-white text-xl font-semibold">
@@ -145,7 +145,7 @@ const ControlPanel = (props: ControlPanelProps) => {
                         </div>
                         <div className="group inline-block relative w-full">
                             <button
-                                className="bg-pop-orange text-white font-semibold text-xl py-2 px-8 w-full inline-flex items-center outline outline-white"
+                                className="bg-pop-orange text-white font-semibold text-xl py-2.5 px-8 w-full inline-flex items-center outline outline-white"
                                 onClick={() => setDropdownOpen(!dropdownOpen)}
                             >
                                 <span className="mr-1">
@@ -180,23 +180,23 @@ const ControlPanel = (props: ControlPanelProps) => {
                                 </div>
                             </div>
                         )}
-                        <div className="flex flex-row justify-end">
-                            {selectedModel != loadedModel && progress == 0 && (
+                        {selectedModel != loadedModel && progress == 0 && (
+                            <div className="flex flex-row justify-end">
                                 <button
                                     className="text-white text-2xl font-semibold mt-2"
                                     onClick={loadModel}
                                 >
                                     Load
                                 </button>
-                            )}
-                        </div>
+                            </div>
+                        )}
                     </div>
                     <div className="flex flex-col">
                         <label className="text-white text-xl font-semibold">
                             Upload Audio
                         </label>
                         <label
-                            className="bg-pop-orange text-xl outline outline-white w-full text-white font-semibold py-2 px-8 mx-auto cursor-pointer"
+                            className="bg-pop-orange text-xl outline outline-white w-full text-white font-semibold py-2.5 px-8 mx-auto cursor-pointer"
                             htmlFor="audioFile"
                         >
                             <div className="flex flex-row justify-between">
@@ -222,20 +222,23 @@ const ControlPanel = (props: ControlPanelProps) => {
                     </div>
                     {blobUrl && (
                         <div>
-                        <label className="text-white text-xl font-semibold">
-                            Your Audio
-                        </label>
-                        <audio
-                            controls
-                            key={blobUrl}
-                            className="mx-auto w-full"
-                        >
-                            <source
+                            <label className="text-white text-xl font-semibold">
+                                Your Audio
+                            </label>
+                            <audio
+                                controls
                                 key={blobUrl}
-                                src={blobUrl}
-                                type="audio/wav"
-                            />
-                        </audio>
+                                className="mx-auto w-full"
+                                style={{
+                                    fontFamily: "__VT323_2a9463",
+                                }}
+                            >
+                                <source
+                                    key={blobUrl}
+                                    src={blobUrl}
+                                    type="audio/wav"
+                                />
+                            </audio>
                         </div>
                     )}
                 </div>
