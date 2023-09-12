@@ -13,6 +13,8 @@ Whisper Turbo intends to be a **drop-in** replacement for the OpenAI Whisper API
 Check out our alpha demo [here](https://whisper-turbo.vercel.app/).
 
 ## Install
+In alpha currently, use at your own risk.
+
 ```bash
 npm install whisper-turbo
 ```
