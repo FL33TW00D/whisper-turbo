@@ -92,8 +92,8 @@ const ControlPanel = (props: ControlPanelProps) => {
     };
 
     const displayModels = () => {
-        const models = Object.values(AvailableModels);
-        const sizes = Array.from(ModelSizes.values());
+        const models = Object.values(AvailableModels).slice(0, -1);
+        const sizes = Array.from(ModelSizes.values()).slice(0, -1);
         const zipped = models.map((model, i) => [model, sizes[i]]);
         return zipped.map((model, idx) => (
             <li key={model[0] as string}>
