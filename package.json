@@ -1,6 +1,6 @@
 {
     "name": "whisper-turbo",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "author": "Christopher Fleetwood <chris@fleetwood.dev>",
     "description": "GPU accelerated Whisper",
     "repository": "FL33TW00D/whisper-turbo",
@@ -33,7 +33,7 @@
         "p-retry": "^5.1.2",
         "true-myth": "^6.2.0",
         "uuid": "^9.0.0",
-        "whisper-webgpu": "../whisper-web/target/pkg"
+        "whisper-webgpu": "0.1.0"
     },
     "files": [
         "dist/**/*"
