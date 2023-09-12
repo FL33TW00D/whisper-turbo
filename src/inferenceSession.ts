@@ -15,9 +15,10 @@ export class InferenceSession {
     }
 
     async initSession(
-        selectedModel: AvailableModels
+        selectedModel: AvailableModels,
+        onProgress: (progress: number) => void
     ): Promise<Result<void, Error>> {
-        return await this.session!.initSession(selectedModel);
+        return await this.session!.initSession(selectedModel, onProgress);
     }
 
     public async run(audio: Uint8Array): Promise<Result<string, Error>> {
@@ -43,7 +44,7 @@ export class InferenceSession {
 
     public destroy(): void {
         if (this.innerWorker !== null) {
-            console.log("Terminating worker");
+            console.warn("Terminating worker");
             this.innerWorker.terminate();
         }
         this.session = null;

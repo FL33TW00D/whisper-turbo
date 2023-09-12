@@ -14,9 +14,14 @@ export class SessionManager {
      */
     public async loadModel(
         selectedModel: AvailableModels,
-        onLoaded: (result: any) => void
+        onLoaded: (result: any) => void,
+        onProgress: (progress: number) => void
     ): Promise<Result<InferenceSession, Error>> {
-        const creationResult = await this.createSession(true, selectedModel);
+        const creationResult = await this.createSession(
+            true,
+            selectedModel,
+            onProgress
+        );
         if (creationResult.isErr) {
             return Result.err(creationResult.error);
         }
@@ -28,13 +33,14 @@ export class SessionManager {
      * Creates a new session with the specified models.
      *
      * @param spawnWorker - Determines whether a Web Worker should be used for the session.
-     * @param model - The model to use for the session.
+     * @param selectedModel - The model to use for the session.
      * @returns A Promise that resolves with a Session instance, or a Remote<Session> instance if a Web Worker was used.
      *
      */
     private async createSession(
         spawnWorker: boolean,
-        selectedModel: AvailableModels
+        selectedModel: AvailableModels,
+        onProgress: (progress: number) => void
     ): Promise<Result<InferenceSession, Error>> {
         if (spawnWorker && typeof document !== "undefined") {
             console.error("Spawning worker...");
@@ -46,7 +52,10 @@ export class SessionManager {
             );
             const SessionWorker = Comlink.wrap<typeof Session>(worker);
             const session = await new SessionWorker();
-            const initResult = await session.initSession(selectedModel);
+            const initResult = await session.initSession(
+                selectedModel,
+                Comlink.proxy(onProgress)
+            );
             //@ts-ignore
             const [state, data] = initResult.repr;
             if (state === "Err") {
@@ -59,7 +68,10 @@ export class SessionManager {
             return Result.ok(new InferenceSession(session, worker));
         } else {
             const session = new Session();
-            const initResult = await session.initSession(selectedModel);
+            const initResult = await session.initSession(
+                selectedModel,
+                onProgress
+            );
             if (initResult.isErr) {
                 console.error("Error initializing session: ", initResult);
                 return Result.err(initResult.error);

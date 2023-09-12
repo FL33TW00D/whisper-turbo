@@ -8,7 +8,8 @@ export class Session {
     whisperSession: whisper.Session | undefined;
 
     public async initSession(
-        selectedModel: AvailableModels
+        selectedModel: AvailableModels,
+        onProgress: (progress: number) => void
     ): Promise<Result<void, Error>> {
         console.error("Initializing session with model: ", selectedModel);
         if (this.whisperSession) {
@@ -18,13 +19,11 @@ export class Session {
                 )
             );
         }
-        const modelResult = await this.loadModel(selectedModel);
-        console.log("Loaded model result: ", modelResult);
+        const modelResult = await this.loadModel(selectedModel, onProgress);
         if (modelResult.isErr) {
             return Result.err(modelResult.error);
         }
         const model = modelResult.value;
-        console.log("Loaded model: ", model);
         await whisper.default();
         const builder = new whisper.SessionBuilder();
         const session = await builder
@@ -36,10 +35,11 @@ export class Session {
     }
 
     private async loadModel(
-        selectedModel: AvailableModels
+        selectedModel: AvailableModels,
+        onProgress: (progress: number) => void
     ): Promise<Result<Model, Error>> {
         const db = await ModelDB.create(); //TODO: don't create a new db every time
-        const dbResult = await db.getModel(selectedModel);
+        const dbResult = await db.getModel(selectedModel, onProgress);
         if (dbResult.isErr) {
             return Result.err(
                 new Error(
@@ -86,6 +86,7 @@ export class Session {
             );
         }
 
+        console.log("Passing this audio to rust: ", audio);
         return Result.ok(await this.whisperSession.stream(audio, callback));
     }
 }

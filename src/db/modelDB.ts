@@ -57,19 +57,38 @@ export default class ModelDB {
         return new ModelDB(db);
     }
 
-    private async fetchBytes(url: string): Promise<Result<Uint8Array, Error>> {
+    private async fetchBytes(
+        url: string,
+        onProgress?: (progress: number) => void
+    ): Promise<Result<Uint8Array, Error>> {
         const run = async () => {
             const response = await fetch(url);
-            if (response.status >= 400) {
-                throw new Error(response.statusText);
+            if (!response.ok) {
+                return Result.err<Uint8Array, Error>(
+                    new Error(`Fetch failed: ${response.status}`)
+                );
             }
-            return response.arrayBuffer();
+            const contentLength = +response.headers.get("Content-Length")!;
+
+            const reader = response.body!.getReader();
+            let receivedLength = 0;
+            const chunks: Uint8Array = new Uint8Array(contentLength);
+            for (;;) {
+                const { done, value } = await reader.read();
+
+                if (done) {
+                    break;
+                }
+
+                chunks.set(value, receivedLength);
+                receivedLength += value.length;
+                if (onProgress) {
+                    onProgress((receivedLength / contentLength) * 100);
+                }
+            }
+            return Result.ok<Uint8Array, Error>(chunks);
         };
-        const bytes = await pRetry(run, { retries: 3 });
-        if (bytes instanceof Error) {
-            return Result.err(bytes);
-        }
-        return Result.ok(new Uint8Array(bytes));
+        return await pRetry(run, { retries: 3 });
     }
 
     async _getModel(modelID: string): Promise<Result<DBModel, Error>> {
@@ -88,7 +107,6 @@ export default class ModelDB {
     }
 
     async getTokenizer(modelID: string): Promise<Result<DBTokenizer, Error>> {
-        console.log("Getting tokenizer for model: ", modelID);
         if (!this.db) {
             return Result.err(new Error("ModelDB not initialized"));
         }
@@ -98,10 +116,8 @@ export default class ModelDB {
             "modelID",
             modelID
         );
-        console.log("Found existing tokenizer: ", tokenizer);
 
         if (!tokenizer) {
-            console.log("Fetching tokenizer from remote");
             const tokenizerBytes = await this.fetchBytes(
                 "https://huggingface.co/openai/whisper-large-v2/raw/main/tokenizer.json"
             );
@@ -109,7 +125,6 @@ export default class ModelDB {
                 return Result.err(tokenizerBytes.error);
             }
             const tokenizerBytesValue = tokenizerBytes.value;
-            console.log("Tokenizer bytes: ", tokenizerBytes);
             tokenizer = {
                 modelID,
                 bytes: tokenizerBytesValue,
@@ -125,23 +140,27 @@ export default class ModelDB {
         return Result.ok(tokenizer!);
     }
 
-    async getModel(model: AvailableModels): Promise<Result<DBModel, Error>> {
+    async getModel(
+        model: AvailableModels,
+        onProgress: (progress: number) => void
+    ): Promise<Result<DBModel, Error>> {
         if (!this.db) {
             return Result.err(new Error("ModelDB not initialized"));
         }
         let modelID = await this.db.get("availableModels", model);
-        console.log("Found existing model ID: ", modelID);
         if (!modelID) {
-            await this.fetchRemote(model);
+            await this.fetchRemote(model, onProgress);
             modelID = await this.db.get("availableModels", model);
         }
         return await this._getModel(modelID!);
     }
 
-    async fetchRemote(model: AvailableModels): Promise<Result<void, Error>> {
+    async fetchRemote(
+        model: AvailableModels,
+        onProgress: (progress: number) => void
+    ): Promise<Result<void, Error>> {
         const remoteURL = `${this.remoteUrl}/whisper-turbo/${model}-pf16-full.bin`;
-        console.log("Fetching model from: ", remoteURL);
-        const fetchResult = await this.fetchBytes(remoteURL);
+        const fetchResult = await this.fetchBytes(remoteURL, onProgress);
 
         if (fetchResult.isErr) {
             return Result.err(fetchResult.error);
