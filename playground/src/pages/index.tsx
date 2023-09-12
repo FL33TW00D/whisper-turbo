@@ -19,6 +19,9 @@ const Home: NextPage = () => {
     useEffect(() => {
         let delimiter = new RegExp("<|d+.d{2}|>");
         let chunks = text.split(delimiter).filter((chunk) => chunk !== "");
+        if (chunks.length == 0) {
+            return;
+        }
 
         let snippets: TranscriptionSnippet[] = [];
         for (let i = 0; i < chunks.length; i += 3) {
