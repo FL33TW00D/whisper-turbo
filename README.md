@@ -9,9 +9,6 @@ Whisper Turbo intends to be a **drop-in** replacement for the OpenAI Whisper API
 2. Developer-friendly APIs for one-shot inference and streaming.
 3. The core Rust + WebGPU inference framework, Rumble, designed from the ground up for fast, cross-platform inference.
 
-## Demo
-Check out our alpha demo [here](https://whisper-turbo.vercel.app/).
-
 ## Install
 In alpha currently, use at your own risk.
 
