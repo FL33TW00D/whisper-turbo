@@ -1,4 +1,5 @@
 import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { fetchFile, toBlobURL } from "@ffmpeg/util";
 
 export enum AcceptedFormats {
     mp3 = "mp3",
@@ -12,12 +13,33 @@ export enum AcceptedFormats {
 
 /// Thin layer over ffmpeg.wasm to transcode audio files to 16-bit WAV.
 export class Transcoder {
-    ffmpeg: FFmpeg;
+    ffmpeg: FFmpeg | null = null;
 
     private readonly sampleRate = 16000;
+    private readonly baseURL = "https://unpkg.com/@ffmpeg/core@0.12.2/dist/umd";
 
-    constructor() {
-        this.ffmpeg = new FFmpeg();
+    private constructor() {}
+
+    static async create() {
+        const transcoder = new Transcoder();
+        await transcoder.init();
+        return transcoder;
+    }
+
+    async init(): Promise<Transcoder> {
+        const ffmpeg = new FFmpeg();
+        await ffmpeg.load({
+            coreURL: await toBlobURL(
+                `${this.baseURL}/ffmpeg-core.js`,
+                "text/javascript"
+            ),
+            wasmURL: await toBlobURL(
+                `${this.baseURL}/ffmpeg-core.wasm`,
+                "application/wasm"
+            ),
+        });
+        this.ffmpeg = ffmpeg;
+        return this;
     }
 
     command = (name: string) => {
@@ -25,12 +47,15 @@ export class Transcoder {
     };
 
     transcode = async (name: string, data: Uint8Array): Promise<Uint8Array> => {
-        await this.ffmpeg.writeFile(name, data);
-        await this.ffmpeg.exec([this.command(name)]);
-        const fileData = await this.ffmpeg.readFile('output.wav');
+        if (this.ffmpeg === null) {
+            await this.init();
+        }
+        await this.ffmpeg!.writeFile(name, data);
+        await this.ffmpeg!.exec([this.command(name)]);
+        const fileData = await this.ffmpeg!.readFile("output.wav");
         if (fileData instanceof Uint8Array) {
             return fileData;
-        }else {
+        } else {
             throw new Error("Failed to transcode file");
         }
     };

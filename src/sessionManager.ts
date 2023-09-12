@@ -43,7 +43,6 @@ export class SessionManager {
         onProgress: (progress: number) => void
     ): Promise<Result<InferenceSession, Error>> {
         if (spawnWorker && typeof document !== "undefined") {
-            console.error("Spawning worker...");
             const worker = new Worker(
                 new URL("./session.worker.js", import.meta.url),
                 {

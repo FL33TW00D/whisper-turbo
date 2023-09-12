@@ -11,7 +11,6 @@ export class Session {
         selectedModel: AvailableModels,
         onProgress: (progress: number) => void
     ): Promise<Result<void, Error>> {
-        console.error("Initializing session with model: ", selectedModel);
         if (this.whisperSession) {
             return Result.err(
                 new Error(
