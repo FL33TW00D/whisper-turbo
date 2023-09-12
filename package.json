@@ -27,6 +27,8 @@
         "lint": "eslint ./src"
     },
     "dependencies": {
+        "@ffmpeg/ffmpeg": "^0.12.6",
+        "@ffmpeg/util": "^0.12.1",
         "comlink": "4.3.1",
         "idb": "^7.1.1",
         "p-limit": "^4.0.0",
