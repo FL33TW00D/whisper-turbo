@@ -43,8 +43,8 @@ export class Transcoder {
     }
 
     isWav = (bytes: Uint8Array): boolean => {
-        const riff = "52 49 46 46"; // "RIFF" in hex
-        const wave = "57 41 56 45"; // "WAVE" in hex
+        const riff = "52 49 46 46";
+        const wave = "57 41 56 45";
 
         const toHexString = (bytes: Uint8Array) => {
             return Array.from(bytes, (byte) => {
@@ -53,13 +53,9 @@ export class Transcoder {
         };
 
         const startSignature = toHexString(bytes.slice(0, 4));
-        if (startSignature !== riff) return false;
-
         const endSignature = toHexString(bytes.slice(8, 12));
-        if (endSignature !== wave) return false;
 
-        // If everything passed, return true
-        return true;
+        return startSignature === riff && endSignature === wave;
     };
 
     command = (name: string) => {

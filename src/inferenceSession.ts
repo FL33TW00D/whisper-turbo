@@ -39,6 +39,10 @@ export class InferenceSession {
             return Result.err(new Error("Session not initialized"));
         }
 
+        if (!this.transcoder?.isWav(audio)) {
+            audio = await this.transcoder!.transcode("test", audio);
+        }
+
         if (callback) {
             if (this.session instanceof Session) {
                 return await this.session.stream(audio, callback);
