@@ -11,7 +11,6 @@ export class Session {
         selectedModel: AvailableModels,
         onProgress: (progress: number) => void
     ): Promise<Result<void, Error>> {
-        console.error("Initializing session with model: ", selectedModel);
         if (this.whisperSession) {
             return Result.err(
                 new Error(
@@ -86,7 +85,6 @@ export class Session {
             );
         }
 
-        console.log("Passing this audio to rust: ", audio);
         return Result.ok(await this.whisperSession.stream(audio, callback));
     }
 }
