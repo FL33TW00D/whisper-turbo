@@ -10,6 +10,8 @@ Whisper Turbo intends to be a **drop-in** replacement for the OpenAI Whisper API
 3. The core Rust + WebGPU inference framework, Rumble, designed from the ground up for fast, cross-platform inference.
 
 ## Install
+In alpha currently, use at your own risk.
+
 ```bash
 npm install whisper-turbo
 ```
