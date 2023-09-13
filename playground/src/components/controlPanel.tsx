@@ -85,7 +85,7 @@ const ControlPanel = (props: ControlPanelProps) => {
             toast.error("No audio file loaded");
             return;
         }
-        await session.current.stream(audioData!, (decoded: string) => {
+        await session.current.transcribe(audioData!, (decoded: string) => {
             props.setText(decoded);
         });
     };
