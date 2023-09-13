@@ -35,7 +35,22 @@ export class InferenceSession {
         audio: Uint8Array,
         callback?: (decoded: string) => void
     ): Promise<Result<string | void, Error>> {
-        
+        if (this.session == null) {
+            return Result.err(new Error("Session not initialized"));
+        }
+
+        if (callback) {
+            if (this.session instanceof Session) {
+                return await this.session.stream(audio, callback);
+            } else {
+                return await this.session!.stream(
+                    audio,
+                    Comlink.proxy(callback)
+                );
+            }
+        } else {
+            return await this.session!.run(audio);
+        }
     }
 
     public destroy(): void {
