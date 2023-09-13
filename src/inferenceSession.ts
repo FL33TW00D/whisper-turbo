@@ -13,7 +13,7 @@ export class InferenceSession {
     constructor(session: Comlink.Remote<Session> | Session, worker?: Worker) {
         this.session = session;
         this.innerWorker = worker || null;
-        this.transcoder = null; 
+        this.transcoder = null;
     }
 
     async initSession(
@@ -24,25 +24,18 @@ export class InferenceSession {
         return await this.session!.initSession(selectedModel, onProgress);
     }
 
-    public async run(audio: Uint8Array): Promise<Result<string, Error>> {
-        if (this.session !== null) {
-            return await this.session!.run(audio);
-        } else {
-            return Result.err(new Error("Session not initialized"));
-        }
-    }
+    public async transcribe(audio: Uint8Array): Promise<Result<string, Error>>;
 
-    public async stream(
+    public async transcribe(
         audio: Uint8Array,
         callback: (decoded: string) => void
-    ): Promise<Result<void, Error>> {
-        if (this.session == null) {
-            return Result.err(new Error("Session not initialized"));
-        } else if (this.session instanceof Session) {
-            return await this.session.stream(audio, callback);
-        } else {
-            return await this.session!.stream(audio, Comlink.proxy(callback));
-        }
+    ): Promise<Result<void, Error>>;
+
+    public async transcribe(
+        audio: Uint8Array,
+        callback?: (decoded: string) => void
+    ): Promise<Result<string | void, Error>> {
+        
     }
 
     public destroy(): void {

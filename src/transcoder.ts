@@ -1,5 +1,5 @@
 import { FFmpeg } from "@ffmpeg/ffmpeg";
-import { fetchFile, toBlobURL } from "@ffmpeg/util";
+import { toBlobURL } from "@ffmpeg/util";
 
 export enum AcceptedFormats {
     mp3 = "mp3",
@@ -41,6 +41,26 @@ export class Transcoder {
         this.ffmpeg = ffmpeg;
         return this;
     }
+
+    isWav = (bytes: Uint8Array): boolean => {
+        const riff = "52 49 46 46"; // "RIFF" in hex
+        const wave = "57 41 56 45"; // "WAVE" in hex
+
+        const toHexString = (bytes: Uint8Array) => {
+            return Array.from(bytes, (byte) => {
+                return ("0" + (byte & 0xff).toString(16)).slice(-2);
+            }).join("");
+        };
+
+        const startSignature = toHexString(bytes.slice(0, 4));
+        if (startSignature !== riff) return false;
+
+        const endSignature = toHexString(bytes.slice(8, 12));
+        if (endSignature !== wave) return false;
+
+        // If everything passed, return true
+        return true;
+    };
 
     command = (name: string) => {
         return `-i ${name} -ac 1 -ar ${this.sampleRate} -acodec pcm_s16le -f wav output.wav`;
