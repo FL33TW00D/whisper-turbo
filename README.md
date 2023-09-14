@@ -35,7 +35,7 @@ Coming soon
 
 ## Want to help?
 
-Are you a GPU wizard?
-Do you know what a HRTB is in Rust?
-Do you know what is going on [here](https://github.com/RuyiLi/cursed-typescript/blob/master/random/game-of-life.ts)?
-Reach out: chris@fleetwood.dev
+- Are you a GPU wizard?
+- Do you know what a HRTB is in Rust?
+- Do you know what is going on [here](https://github.com/RuyiLi/cursed-typescript/blob/master/random/game-of-life.ts)?
+- Reach out: chris@fleetwood.dev
