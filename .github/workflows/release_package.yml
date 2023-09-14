@@ -26,6 +26,9 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Run build 
+        run: npm run build 
+
       # Configure Git
       - name: Git configuration
         run: |
