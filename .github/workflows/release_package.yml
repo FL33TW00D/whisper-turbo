@@ -29,7 +29,7 @@ jobs:
       # Configure Git
       - name: Git configuration
         run: |
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.email "fleetwoodpersonal@gmail.com"
           git config --global user.name "GitHub Actions"
 
       # Bump package version
