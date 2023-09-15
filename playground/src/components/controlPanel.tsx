@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect } from "react";
 import {
     AvailableModels,
-    ModelSizes,
     InferenceSession,
     SessionManager,
+    MicRecorder,
 } from "whisper-turbo";
 import toast from "react-hot-toast";
 import { humanFileSize } from "../util";
+import ProgressBar from "./progressBar";
+import ModelSelector from "./modelSelector";
 
 interface ControlPanelProps {
     setText: (text: string) => void;
@@ -23,8 +25,8 @@ const ControlPanel = (props: ControlPanelProps) => {
     const [audioData, setAudioData] = useState<Uint8Array | null>(null);
     const [audioMetadata, setAudioMetadata] = useState<File | null>(null);
     const [loaded, setLoaded] = useState<boolean>(false);
+    const [mic, setMic] = useState<MicRecorder | null>(null);
     const [progress, setProgress] = useState<number>(0);
-    const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
 
     const handleAudioFile = () => async (event: any) => {
         const file = event.target.files[0];
@@ -43,8 +45,7 @@ const ControlPanel = (props: ControlPanelProps) => {
 
     useEffect(() => {
         if (audioData) {
-            const blob = new Blob([audioData], { type: "audio/wav" });
-            const url = URL.createObjectURL(blob);
+            const url = URL.createObjectURL(new Blob([audioData]));
             setBlobUrl(url);
             return () => {
                 URL.revokeObjectURL(url);
@@ -90,33 +91,6 @@ const ControlPanel = (props: ControlPanelProps) => {
         });
     };
 
-    const displayModels = () => {
-        const models = Object.values(AvailableModels).slice(0, -1);
-        const sizes = Array.from(ModelSizes.values()).slice(0, -1);
-        const zipped = models.map((model, i) => [model, sizes[i]]);
-        return zipped.map((model, idx) => (
-            <li key={model[0] as string}>
-                <a
-                    className={`bg-orange-500 hover:bg-pop-orange py-2 px-8 font-semibold text-xl block whitespace-no-wrap cursor-pointer ${
-                        idx === zipped.length - 1 ? "rounded-b-md" : ""
-                    }`}
-                    onClick={() => {
-                        setSelectedModel(model[0] as AvailableModels);
-                        setDropdownOpen(false);
-                    }}
-                >
-                    {fmtModel(model[0] as AvailableModels)}{" "}
-                    {humanFileSize(model[1] as number)}
-                </a>
-            </li>
-        ));
-    };
-
-    const fmtModel = (model: AvailableModels) => {
-        let name = model.split("-")[1];
-        name = name.charAt(0).toUpperCase() + name.slice(1);
-        return name;
-    };
     return (
         <div className="flex-1 w-1/2 h-full flex flex-col relative z-10 overflow-scroll">
             <div className="h-full px-4 xl:pl-32 my-4">
@@ -132,53 +106,13 @@ const ControlPanel = (props: ControlPanelProps) => {
                 />
                 <div className="flex flex-col mx-auto gap-6">
                     <div>
-                        <div className="flex flex-row justify-between">
-                            <label className="text-white text-xl font-semibold">
-                                Select Model
-                            </label>
-                            {progress > 0 && !loaded && (
-                                <label className="text-white text-xl font-semibold text-right">
-                                    {progress.toFixed(2)}%
-                                </label>
-                            )}
-                        </div>
-                        <div className="group inline-block relative w-full">
-                            <button
-                                className="bg-pop-orange text-white font-semibold text-xl py-2.5 px-8 w-full inline-flex items-center outline outline-white"
-                                onClick={() => setDropdownOpen(!dropdownOpen)}
-                            >
-                                <span className="mr-1">
-                                    {selectedModel
-                                        ? fmtModel(selectedModel)
-                                        : "Select Model"}
-                                </span>
-                                <svg
-                                    className="fill-current h-4 w-4"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 20 20"
-                                >
-                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                                </svg>
-                            </button>
-                            <ul
-                                className="absolute text-white group-hover:block z-10 w-full"
-                                style={{
-                                    display: dropdownOpen ? "block" : "none",
-                                }}
-                            >
-                                {displayModels()}
-                            </ul>
-                        </div>
-                        {progress > 0 && progress < 100 && !loaded && (
-                            <div className="flex flex-col gap-2">
-                                <div className="h-3 outline outline-white bg-gray-200">
-                                    <div
-                                        className="bg-emerald-500 h-3"
-                                        style={{ width: `${progress}%` }}
-                                    ></div>
-                                </div>
-                            </div>
-                        )}
+                        <ModelSelector
+                            selectedModel={selectedModel}
+                            setSelectedModel={setSelectedModel}
+                            loaded={loaded}
+                            progress={progress}
+                        />
+                        <ProgressBar progress={progress} loaded={loaded} />
                         {selectedModel != loadedModel && progress == 0 && (
                             <div className="flex flex-row justify-end">
                                 <button
