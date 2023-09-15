@@ -20,10 +20,10 @@ export const ModelSizes: Map<AvailableModels, number> = new Map([
 
 export class Model {
     name: string;
-    data: Uint8Array;
+    data: Uint8Array[];
     tokenizer: Uint8Array;
 
-    constructor(name: string, data: Uint8Array, tokenizer: Uint8Array) {
+    constructor(name: string, data: Uint8Array[], tokenizer: Uint8Array) {
         this.name = name;
         this.data = data;
         this.tokenizer = tokenizer;
@@ -38,10 +38,15 @@ export class Model {
             return Result.err(tokenizerResult.error);
         }
         const tokenizerBytes = tokenizerResult.value.bytes;
+        const modelChunksResult = await db.getModelChunks(dbModel.ID);
+        if (modelChunksResult.isErr) {
+            return Result.err(modelChunksResult.error);
+        }
+        const modelChunks = modelChunksResult.value;
+        modelChunks.sort((a, b) => a.chunkIndex - b.chunkIndex);
+        const data = modelChunks.map((chunk) => chunk.chunk);
 
-        return Result.ok(
-            new Model(dbModel.name, dbModel.bytes, tokenizerBytes)
-        );
+        return Result.ok(new Model(dbModel.name, data, tokenizerBytes));
     }
 }
 
