@@ -35,7 +35,7 @@
         "p-retry": "^5.1.2",
         "true-myth": "^6.2.0",
         "uuid": "^9.0.0",
-        "whisper-webgpu": "0.3.0"
+        "whisper-webgpu": "file:../whisper-web/target/pkg"
     },
     "files": [
         "dist/**/*"

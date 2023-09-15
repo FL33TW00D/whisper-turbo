@@ -24,9 +24,29 @@ const ControlPanel = (props: ControlPanelProps) => {
     );
     const [audioData, setAudioData] = useState<Uint8Array | null>(null);
     const [audioMetadata, setAudioMetadata] = useState<File | null>(null);
+    const [blobUrl, setBlobUrl] = useState<string | null>(null);
     const [loaded, setLoaded] = useState<boolean>(false);
     const [mic, setMic] = useState<MicRecorder | null>(null);
     const [progress, setProgress] = useState<number>(0);
+
+    const handleRecord = () => async () => {
+        if (mic?.isRecording()) {
+            await mic.stop();
+        }
+        setMic(await MicRecorder.start());
+    };
+    
+    const handleStop = () => async () => {
+        if (!mic) {
+            return;
+        }
+        await mic.stop();
+        let blob = mic.getBlob();
+        setBlobUrl(URL.createObjectURL(blob));
+        setAudioData(new Uint8Array(await blob.arrayBuffer()));
+        setAudioMetadata(new File([blob], "recording.wav"));
+        setMic(null);
+    };
 
     const handleAudioFile = () => async (event: any) => {
         const file = event.target.files[0];
@@ -41,15 +61,10 @@ const ControlPanel = (props: ControlPanelProps) => {
         reader.readAsArrayBuffer(file);
     };
 
-    const [blobUrl, setBlobUrl] = useState<string | null>(null);
-
     useEffect(() => {
         if (audioData) {
             const url = URL.createObjectURL(new Blob([audioData]));
             setBlobUrl(url);
-            return () => {
-                URL.revokeObjectURL(url);
-            };
         }
     }, [audioData]);
 
@@ -152,6 +167,21 @@ const ControlPanel = (props: ControlPanelProps) => {
                             id="audioFile"
                             onChange={handleAudioFile()}
                         />
+
+                        <div className="flex flex-row justify-between">
+                            <button
+                                className="bg-pop-orange text-xl outline outline-white text-white font-semibold py-2.5 px-8 mx-auto cursor-pointer active:bg-pop-orange-dark"
+                                onClick={handleRecord()}
+                            >
+                                Record
+                            </button>
+                            <button
+                                className="bg-pop-orange text-xl outline outline-white text-white font-semibold py-2.5 px-8 mx-auto cursor-pointer active:bg-pop-orange-dark"
+                                onClick={handleStop()}
+                            >
+                                Stop
+                            </button>
+                        </div>
                     </div>
                     {blobUrl && (
                         <div>

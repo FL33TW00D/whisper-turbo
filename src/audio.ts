@@ -13,11 +13,8 @@
 export class MicRecorder {
     private recorder: MediaRecorder | null = null;
     private static readonly supportedMimes = [
-        "audio/mp4",
-        "audio/mp3",
-        "audio/wav",
-        "audio/aac",
-        "audio/m4a",
+        "audio/webm", //Chrome
+        "audio/ogg", //Firefox
     ];
     private audioChunks: Blob[] = [];
 
@@ -26,7 +23,7 @@ export class MicRecorder {
         this.audioChunks = audioChunks;
     }
 
-    public static async create(): Promise<MicRecorder> {
+    public static async start(): Promise<MicRecorder> {
         const stream = await navigator.mediaDevices.getUserMedia({
             audio: true,
             video: false,
@@ -38,20 +35,33 @@ export class MicRecorder {
             ),
         });
 
+        console.log("Selected mime: ", mediaRecorder.mimeType);
+
         const audioChunks: Blob[] = [];
         mediaRecorder.addEventListener("dataavailable", (event: BlobEvent) => {
             audioChunks.push(event.data);
         });
 
-        return new MicRecorder(mediaRecorder, audioChunks);
+        const recorder = new MicRecorder(mediaRecorder, audioChunks);
+        recorder.recorder!.start();
+        return recorder;
     }
 
-    public start(): void {
-        this.recorder?.start();
+    public isRecording(): boolean {
+        return this.recorder?.state === "recording";
     }
 
-    public stop(): void {
-        this.recorder?.stop();
+    public stop(): Promise<void> {
+        return new Promise((resolve, rejected) => {
+            this.recorder?.addEventListener("error", (event) => {
+                rejected(event);
+            });
+            this.recorder?.addEventListener("stop", () => {
+                resolve();
+            });
+            this.recorder?.stop();
+            this.recorder = null;
+        });
     }
 
     public getBlob(): Blob {
