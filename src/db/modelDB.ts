@@ -1,6 +1,6 @@
 import { DBSchema, IDBPDatabase, openDB } from "idb/with-async-ittr";
 import { v4 as uuidv4 } from "uuid";
-import { DBModel, DBTokenizer } from "./types";
+import { DBModel, DBModelChunk, DBTokenizer } from "./types";
 import { AvailableModels } from "../models";
 import { Result } from "true-myth";
 import pRetry from "p-retry";
@@ -8,6 +8,11 @@ import pRetry from "p-retry";
 interface ModelDBSchema extends DBSchema {
     models: {
         value: DBModel;
+        key: string;
+        indexes: { modelID: string };
+    };
+    modelChunks: {
+        value: DBModelChunk;
         key: string;
         indexes: { modelID: string };
     };
@@ -47,8 +52,13 @@ export default class ModelDB {
         const db = await openDB<ModelDBSchema>("models", 1, {
             upgrade(db) {
                 const modelStore = db.createObjectStore("models");
-                modelStore.createIndex("modelID", "modelID");
+                modelStore.createIndex("modelID", "ID");
+
+                const modelChunkStore = db.createObjectStore("modelChunks");
+                modelChunkStore.createIndex("modelID", "modelID");
+
                 db.createObjectStore("availableModels");
+
                 const tokenizerStore = db.createObjectStore("tokenizer");
                 tokenizerStore.createIndex("modelID", "modelID");
             },
@@ -60,11 +70,12 @@ export default class ModelDB {
     private async fetchBytes(
         url: string,
         onProgress?: (progress: number) => void
-    ): Promise<Result<Uint8Array, Error>> {
+    ): Promise<Result<Uint8Array[], Error>> {
+        const chunkSize = 128 * 1024 * 1024;
         const run = async () => {
             const response = await fetch(url);
             if (!response.ok) {
-                return Result.err<Uint8Array, Error>(
+                return Result.err<Uint8Array[], Error>(
                     new Error(`Fetch failed: ${response.status}`)
                 );
             }
@@ -72,21 +83,29 @@ export default class ModelDB {
 
             const reader = response.body!.getReader();
             let receivedLength = 0;
-            const chunks: Uint8Array = new Uint8Array(contentLength);
+            const chunks: Uint8Array[] = Array(
+                Math.ceil(contentLength / chunkSize)
+            );
+            let currentChunk = 0;
+            let currentChunkLength = 0;
             for (;;) {
                 const { done, value } = await reader.read();
 
                 if (done) {
                     break;
                 }
+                if (currentChunkLength + value.length > chunkSize) {
+                    currentChunk++;
+                    currentChunkLength = 0;
+                }
+                chunks[currentChunk].set(value, currentChunkLength);
 
-                chunks.set(value, receivedLength);
                 receivedLength += value.length;
                 if (onProgress) {
                     onProgress((receivedLength / contentLength) * 100);
                 }
             }
-            return Result.ok<Uint8Array, Error>(chunks);
+            return Result.ok<Uint8Array[], Error>(chunks);
         };
         return await pRetry(run, { retries: 3 });
     }
@@ -99,11 +118,28 @@ export default class ModelDB {
         const tx = this.db.transaction("models", "readonly");
         const store = tx.objectStore("models");
         const model = await store.get(modelID);
+        await tx.done;
 
         if (!model) {
             return Result.err(new Error("Model not found"));
         }
         return Result.ok(model);
+    }
+
+    async getModelChunks(modelID: string): Promise<Result<DBModelChunk[], Error>> {
+        if (!this.db) {
+            return Result.err(new Error("ModelDB not initialized"));
+        }
+
+        const tx = this.db.transaction("modelChunks", "readonly");
+        const store = tx.objectStore("modelChunks");
+        const chunks = await store.getAll(modelID);
+        await tx.done;
+
+        if (!chunks) {
+            return Result.err(new Error("Model chunks not found"));
+        }
+        return Result.ok(chunks);
     }
 
     async getTokenizer(modelID: string): Promise<Result<DBTokenizer, Error>> {
@@ -125,16 +161,16 @@ export default class ModelDB {
                 return Result.err(tokenizerBytes.error);
             }
             const tokenizerBytesValue = tokenizerBytes.value;
+            if (tokenizerBytesValue.length !== 1) {
+                return Result.err(
+                    new Error("Tokenizer bytes should be a single chunk")
+                );
+            }
             tokenizer = {
                 modelID,
-                bytes: tokenizerBytesValue,
+                bytes: tokenizerBytesValue[0],
             };
             this.db.put("tokenizer", tokenizer, modelID);
-            tokenizer = await this.db.getFromIndex(
-                "tokenizer",
-                "modelID",
-                modelID
-            );
         }
 
         return Result.ok(tokenizer!);
@@ -165,14 +201,22 @@ export default class ModelDB {
         if (fetchResult.isErr) {
             return Result.err(fetchResult.error);
         }
-        const data = fetchResult.value;
-
+        const modelChunks = fetchResult.value;
         const modelID = uuidv4();
+        for (const [chunkIndex, chunk] of modelChunks.entries()) {
+            const dbModelChunk = {
+                chunk,
+                chunkIndex,
+                modelID,
+            };
+            this.db!.put("modelChunks", dbModelChunk, modelID);
+        }
+
         this.db!.put("availableModels", modelID, model);
-        const dbModel = { name: model, ID: modelID, bytes: data };
+
+        const dbModel = { name: model, ID: modelID };
         this.db!.put("models", dbModel, modelID);
         this.getTokenizer(modelID);
-
         return Result.ok(undefined);
     }
 }
