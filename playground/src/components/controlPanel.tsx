@@ -11,8 +11,18 @@ import { humanFileSize } from "../util";
 import ProgressBar from "./progressBar";
 import ModelSelector from "./modelSelector";
 
+export interface TSSegment {
+    text: string;
+    start: number;
+    stop: number;
+}
+
+export interface TSTranscript {
+    segments: Array<TSSegment>;
+}
+
 interface ControlPanelProps {
-    setTranscript: (transcript: Transcript) => void;
+    setTranscript: (transcript: TSTranscript) => void;
 }
 
 const ControlPanel = (props: ControlPanelProps) => {
@@ -111,7 +121,7 @@ const ControlPanel = (props: ControlPanelProps) => {
         }
 
         console.log(data);
-        props.setTranscript(data as Transcript);
+        props.setTranscript(data as unknown as TSTranscript);
     };
 
     return (

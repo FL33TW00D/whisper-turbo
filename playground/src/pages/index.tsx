@@ -2,17 +2,13 @@ import type { NextPage } from "next";
 import { VT323 } from "@next/font/google";
 import { useEffect, useState } from "react";
 import Layout from "../components/layout";
-import ControlPanel from "../components/controlPanel";
+import ControlPanel, { TSSegment, TSTranscript } from "../components/controlPanel";
 import { Transcript, Segment } from "whisper-turbo";
 
 const vt = VT323({ weight: "400", display: "swap" });
 
 const Home: NextPage = () => {
-    const [transcript, setTranscript] = useState<any | null>(null);
-
-    useEffect(() => {
-        console.log(transcript);
-    }, [transcript]);
+    const [transcript, setTranscript] = useState<TSTranscript | null>(null);
 
     return (
         <Layout title={"Whisper Turbo"}>
@@ -26,8 +22,7 @@ const Home: NextPage = () => {
                                     transcript
                                         .segments
                                         .map(
-                                            (s: any) => {
-                                                let segment = s.segment;
+                                            (segment: TSSegment) => {
                                                 return (
                                                     <div
                                                         key={segment.start}
