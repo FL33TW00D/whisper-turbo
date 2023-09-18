@@ -68,6 +68,12 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPMJS_RELEASE_TOKEN }}
 
+      - name: Bump playground
+        working-directory: "./playground"
+        run: |
+          npm install whisper-turbo@{{env.NEW_VERSION}}
+          git add "package.json"
+
       # Push repository changes
       - name: Push changes to repository
         env:
