@@ -2,6 +2,7 @@ import { Session } from "./session.worker";
 import * as Comlink from "comlink";
 import { Result } from "true-myth";
 import { AvailableModels } from "./models";
+import { Transcript } from "whisper-webgpu";
 
 //User facing API
 export class InferenceSession {
@@ -20,7 +21,7 @@ export class InferenceSession {
         return await this.session!.initSession(selectedModel, onProgress);
     }
 
-    public async transcribe(audio: Uint8Array): Promise<Result<string, Error>>;
+    public async transcribe(audio: Uint8Array): Promise<Result<Transcript, Error>>;
 
     public async transcribe(
         audio: Uint8Array,
@@ -30,7 +31,7 @@ export class InferenceSession {
     public async transcribe(
         audio: Uint8Array,
         callback?: (decoded: string) => void
-    ): Promise<Result<string | void, Error>> {
+    ): Promise<Result<Transcript | void, Error>> {
         if (this.session == null) {
             return Result.err(new Error("Session not initialized"));
         }

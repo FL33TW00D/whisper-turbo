@@ -61,7 +61,7 @@ export class Session {
         return Result.ok(model);
     }
 
-    public async run(audio: Uint8Array): Promise<Result<string, Error>> {
+    public async run(audio: Uint8Array): Promise<Result<whisper.Transcript, Error>> {
         if (!this.whisperSession) {
             return Result.err(
                 new Error(

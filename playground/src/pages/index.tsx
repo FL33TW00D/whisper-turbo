@@ -3,6 +3,7 @@ import { VT323 } from "@next/font/google";
 import { useEffect, useState } from "react";
 import Layout from "../components/layout";
 import ControlPanel from "../components/controlPanel";
+import { Transcript } from "whisper-webgpu";
 
 const vt = VT323({ weight: "400", display: "swap" });
 
@@ -13,48 +14,21 @@ interface TranscriptionSnippet {
 }
 
 const Home: NextPage = () => {
-    const [text, setText] = useState<string>("");
-    const [snippets, setSnippets] = useState<TranscriptionSnippet[]>([]);
+    const [transcript, setTranscript] = useState<Transcript | null>(null);
 
     useEffect(() => {
-        //TODO: structured output 
-        let delimiter = new RegExp("<|d+.d{2}|>");
-        let chunks = text.split(delimiter).filter((chunk) => chunk !== "");
-        if (chunks.length == 0) {
-            return;
-        }
-
-        let snippets: TranscriptionSnippet[] = [];
-        for (let i = 0; i < chunks.length; i += 3) {
-            let start = chunks[i];
-            let text = chunks[i + 1];
-            let end = chunks[i + 2];
-
-            if (start !== undefined) {
-                start = start.replace(/\|/g, "");
-            }
-            if (end !== undefined) {
-                end = end.replace(/\|/g, "");
-            }
-
-            snippets.push({
-                start: start ? parseFloat(start) : undefined,
-                text: text,
-                end: end ? parseFloat(end) : undefined,
-            });
-        }
-        setSnippets(snippets);
-    }, [text]);
+        console.log(transcript);
+    }, [transcript]);
 
     return (
         <Layout title={"Whisper Turbo"}>
             <div className={`p-0 ${vt.className}`}>
                 <div className="flex gap-8 flex-row h-screen">
-                    <ControlPanel setText={setText} />
+                    <ControlPanel setTranscript={setTranscript} />
                     <div className="flex-1 w-1/2 h-full flex flex-col relative z-10">
                         <div className="h-full flex flex-col mx-auto px-4 xl:pr-32 overflow-scroll py-12 w-full">
                             <div className="flex flex-col h-full">
-                                {snippets.map(
+                                {transcript && transcript.segments && transcript.segments!.map(
                                     (snippet: TranscriptionSnippet) => {
                                         return (
                                             <div

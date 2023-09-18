@@ -11,7 +11,7 @@ import ProgressBar from "./progressBar";
 import ModelSelector from "./modelSelector";
 
 interface ControlPanelProps {
-    setText: (text: string) => void;
+    setTranscript: (transcript: Transcript) => void;
 }
 
 const ControlPanel = (props: ControlPanelProps) => {
@@ -102,7 +102,7 @@ const ControlPanel = (props: ControlPanelProps) => {
             return;
         }
         await session.current.transcribe(audioData!, (decoded: string) => {
-            props.setText(decoded);
+            props.setTranscript(decoded);
         });
     };
 
