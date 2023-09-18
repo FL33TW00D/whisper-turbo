@@ -3,6 +3,7 @@ import * as Comlink from "comlink";
 import { Result } from "true-myth";
 import { AvailableModels, Model } from "./models";
 import ModelDB from "./db/modelDB";
+import { warn } from "console";
 
 export class Session {
     whisperSession: whisper.Session | undefined;

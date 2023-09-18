@@ -4,6 +4,7 @@ import {
     InferenceSession,
     SessionManager,
     MicRecorder,
+    Transcript,
 } from "whisper-turbo";
 import toast from "react-hot-toast";
 import { humanFileSize } from "../util";
@@ -101,9 +102,16 @@ const ControlPanel = (props: ControlPanelProps) => {
             toast.error("No audio file loaded");
             return;
         }
-        await session.current.transcribe(audioData!, (decoded: string) => {
-            props.setTranscript(decoded);
-        });
+        let result = await session.current.transcribe(audioData!);
+        //@ts-ignore
+        let [state, data] = result.repr;
+        if(state == "Err") {
+            toast.error(data.message);
+            return;
+        }
+
+        console.log(data);
+        props.setTranscript(data as Transcript);
     };
 
     return (
