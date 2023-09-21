@@ -1,6 +1,6 @@
 {
     "name": "whisper-turbo",
-    "version": "0.5.2",
+    "version": "0.5.3",
     "author": "Christopher Fleetwood <chris@fleetwood.dev>",
     "description": "GPU accelerated Whisper",
     "repository": "FL33TW00D/whisper-turbo",
