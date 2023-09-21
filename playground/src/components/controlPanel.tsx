@@ -8,7 +8,6 @@ import toast from "react-hot-toast";
 import { humanFileSize } from "../util";
 import ProgressBar from "./progressBar";
 import ModelSelector from "./modelSelector";
-import { Segment } from "whisper-webgpu";
 
 export interface TSSegment {
     text: string;
@@ -38,7 +37,8 @@ const ControlPanel = (props: ControlPanelProps) => {
     const [blobUrl, setBlobUrl] = useState<string | null>(null);
     const [loaded, setLoaded] = useState<boolean>(false);
     const [progress, setProgress] = useState<number>(0);
-    {/*
+    {
+        /*
     const [mic, setMic] = useState<MicRecorder | null>(null);
 
     const handleRecord = () => async () => {
@@ -59,7 +59,8 @@ const ControlPanel = (props: ControlPanelProps) => {
         setAudioMetadata(new File([blob], "recording.wav"));
         setMic(null);
     };
-    */}
+    */
+    }
 
     const handleAudioFile = () => async (event: any) => {
         const file = event.target.files[0];
@@ -114,14 +115,11 @@ const ControlPanel = (props: ControlPanelProps) => {
             toast.error("No audio file loaded");
             return;
         }
-        await session.current.transcribe(audioData!, (s: Segment) => {
+        await session.current.transcribe(audioData!, (s: any) => {
             props.setTranscript((transcript: TSTranscript) => {
                 return {
                     ...transcript,
-                    segments: [
-                        ...transcript.segments,
-                        s as unknown as TSSegment,
-                    ],
+                    segments: [...transcript.segments, s],
                 };
             });
         });
