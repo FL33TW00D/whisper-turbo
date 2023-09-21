@@ -20,14 +20,19 @@ jobs:
           registry-url: https://registry.npmjs.org/
           node-version: '14'
 
+      - name: Install pnpm 
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Run tests
-        run: npm test
+        run: pnpm test
 
       - name: Run build 
-        run: npm run build 
+        run: pnpm run build 
 
       # Configure Git
       - name: Git configuration
@@ -58,7 +63,7 @@ jobs:
       # Commit changes
       - name: Commit package.json changes and create tag
         run: |
-          git add "package.json"
+          git add "package.json" "pnpm-lock.yaml"
           git commit -m "chore: release ${{ env.NEW_VERSION }}"
           git tag ${{ env.NEW_VERSION }}
 
@@ -72,7 +77,7 @@ jobs:
         working-directory: "./playground"
         run: |
           npm install whisper-turbo@${{env.NEW_VERSION}}
-          git add "package.json"
+          git add "package.json" "pnpm-lock.yaml"
           git commit -m "chore: bump whisper-turbo"
 
       # Push repository changes
