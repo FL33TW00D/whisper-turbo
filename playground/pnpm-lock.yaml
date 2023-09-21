@@ -30,8 +30,8 @@ dependencies:
     specifier: ^7.1.0
     version: 7.1.0
   whisper-turbo:
-    specifier: file:..
-    version: file:..
+    specifier: 0.5.0
+    version: 0.5.0
 
 devDependencies:
   '@tailwindcss/typography':
@@ -2786,8 +2786,22 @@ packages:
     dependencies:
       isexe: 2.0.0
 
-  /whisper-webgpu@0.4.0:
-    resolution: {integrity: sha512-NfJnPmzMAR5tazzZR5tVGOwRCn2M5E8ViBXHZ838u32KQcjvJhpZwpZdtwW2h7D2Bw0g4TzPikCnM21NPK6eRA==}
+  /whisper-turbo@0.5.0:
+    resolution: {integrity: sha512-oC1vQSJAAR5yvkr8rwMWpqqIWzUobk4rj06dMCBaceaS5i+ixAclT5ELoWLh4wvFFHsq9XsE+fcyr0V2KlD+OA==}
+    dependencies:
+      '@ffmpeg/ffmpeg': 0.12.6
+      '@ffmpeg/util': 0.12.1
+      comlink: 4.3.1
+      idb: 7.1.1
+      p-limit: 4.0.0
+      p-retry: 5.1.2
+      true-myth: 6.2.0
+      uuid: 9.0.1
+      whisper-webgpu: 0.3.0
+    dev: false
+
+  /whisper-webgpu@0.3.0:
+    resolution: {integrity: sha512-tgQ4jRY5pANsIAknlCO5ncpSfBEL1Rc3pJAIlXtGputr4kTq6U+A8qj91RWvjuaTjpLCI1NmAVFwJiM+uWpl7A==}
     dev: false
 
   /wrappy@1.0.2:
@@ -2808,19 +2822,4 @@ packages:
   /yocto-queue@1.0.0:
     resolution: {integrity: sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==}
     engines: {node: '>=12.20'}
-    dev: false
-
-  file:..:
-    resolution: {directory: .., type: directory}
-    name: whisper-turbo
-    dependencies:
-      '@ffmpeg/ffmpeg': 0.12.6
-      '@ffmpeg/util': 0.12.1
-      comlink: 4.3.1
-      idb: 7.1.1
-      p-limit: 4.0.0
-      p-retry: 5.1.2
-      true-myth: 6.2.0
-      uuid: 9.0.1
-      whisper-webgpu: 0.4.0
     dev: false

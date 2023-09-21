@@ -3,7 +3,6 @@ import {
     AvailableModels,
     InferenceSession,
     SessionManager,
-    MicRecorder,
 } from "whisper-turbo";
 import toast from "react-hot-toast";
 import { humanFileSize } from "../util";
@@ -38,8 +37,9 @@ const ControlPanel = (props: ControlPanelProps) => {
     const [audioMetadata, setAudioMetadata] = useState<File | null>(null);
     const [blobUrl, setBlobUrl] = useState<string | null>(null);
     const [loaded, setLoaded] = useState<boolean>(false);
-    const [mic, setMic] = useState<MicRecorder | null>(null);
     const [progress, setProgress] = useState<number>(0);
+    {/*
+    const [mic, setMic] = useState<MicRecorder | null>(null);
 
     const handleRecord = () => async () => {
         if (mic?.isRecording()) {
@@ -59,6 +59,7 @@ const ControlPanel = (props: ControlPanelProps) => {
         setAudioMetadata(new File([blob], "recording.wav"));
         setMic(null);
     };
+    */}
 
     const handleAudioFile = () => async (event: any) => {
         const file = event.target.files[0];
