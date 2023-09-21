@@ -30,8 +30,8 @@ dependencies:
     specifier: ^7.1.0
     version: 7.1.0
   whisper-turbo:
-    specifier: 0.6.0
-    version: 0.6.0
+    specifier: ^0.5.3
+    version: 0.5.3
 
 devDependencies:
   '@tailwindcss/typography':
@@ -2786,8 +2786,8 @@ packages:
     dependencies:
       isexe: 2.0.0
 
-  /whisper-turbo@0.6.0:
-    resolution: {integrity: sha512-x0YTy0LF7YtdlB9MLJCrG10zCePVUHC1o166pLYLWnIKtiXLk3cZVuLDonDydGWyneOCWpC6qyy89mTQbS2cmA==}
+  /whisper-turbo@0.5.3:
+    resolution: {integrity: sha512-Hu/JaCuCswi+HxyTEUnWOo2c3Y52WXZfhEIqjYWzK6P8FRCB4y6OcvEUxsb6aTWtaK0UfciZ3W22OMbiZa+C3w==}
     dependencies:
       '@ffmpeg/ffmpeg': 0.12.6
       '@ffmpeg/util': 0.12.1
