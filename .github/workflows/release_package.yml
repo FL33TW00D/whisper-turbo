@@ -68,6 +68,13 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPMJS_RELEASE_TOKEN }}
 
+      - name: Bump playground
+        working-directory: "./playground"
+        run: |
+          npm install whisper-turbo@{{env.NEW_VERSION}}
+          git add "package.json"
+          git commit -m "chore: bump whisper-turbo"
+
       # Push repository changes
       - name: Push changes to repository
         env:
@@ -75,21 +82,12 @@ jobs:
         run: |
           git push origin && git push --tags
 
-      # Read version changelog
-      - id: get-changelog
-        name: Get version changelog
-        uses: superfaceai/release-changelog-action@v1
-        with:
-          path-to-changelog: CHANGELOG.md
-          version: ${{ env.NEW_VERSION }}
-          operation: read
-
       # Update GitHub release with changelog
       - name: Update GitHub release documentation
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ env.NEW_VERSION }}
-          body: ${{ steps.get-changelog.outputs.changelog }}
+          body: "New release"
           prerelease: ${{ startsWith(github.event.inputs.release-type, 'pre') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
