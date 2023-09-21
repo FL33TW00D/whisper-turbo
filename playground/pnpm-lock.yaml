@@ -2786,6 +2786,10 @@ packages:
     dependencies:
       isexe: 2.0.0
 
+  /whisper-webgpu@0.4.0:
+    resolution: {integrity: sha512-NfJnPmzMAR5tazzZR5tVGOwRCn2M5E8ViBXHZ838u32KQcjvJhpZwpZdtwW2h7D2Bw0g4TzPikCnM21NPK6eRA==}
+    dev: false
+
   /wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
 
@@ -2818,10 +2822,5 @@ packages:
       p-retry: 5.1.2
       true-myth: 6.2.0
       uuid: 9.0.1
-      whisper-webgpu: file:../../whisper-web/target/pkg
-    dev: false
-
-  file:../../whisper-web/target/pkg:
-    resolution: {directory: ../../whisper-web/target/pkg, type: directory}
-    name: whisper-webgpu
+      whisper-webgpu: 0.4.0
     dev: false
