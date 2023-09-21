@@ -188,6 +188,7 @@ const ControlPanel = (props: ControlPanelProps) => {
                             onChange={handleAudioFile()}
                         />
 
+                        {/*
                         <div className="flex flex-row justify-between">
                             <button
                                 className="bg-pop-orange text-xl outline outline-white text-white font-semibold py-2.5 px-8 mx-auto cursor-pointer active:bg-pop-orange-dark"
@@ -202,6 +203,7 @@ const ControlPanel = (props: ControlPanelProps) => {
                                 Stop
                             </button>
                         </div>
+                        */}
                     </div>
                     {blobUrl && (
                         <div>
