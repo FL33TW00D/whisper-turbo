@@ -3,7 +3,6 @@ import * as Comlink from "comlink";
 import { Result } from "true-myth";
 import { AvailableModels, Model } from "./models";
 import ModelDB from "./db/modelDB";
-import { warn } from "console";
 
 export class Session {
     whisperSession: whisper.Session | undefined;
@@ -76,7 +75,7 @@ export class Session {
 
     public async stream(
         audio: Uint8Array,
-        callback: (decoded: string) => void
+        callback: (decoded: whisper.Segment) => void
     ): Promise<Result<void, Error>> {
         if (!this.whisperSession) {
             return Result.err(

@@ -4,12 +4,12 @@ import {
     InferenceSession,
     SessionManager,
     MicRecorder,
-    Transcript,
 } from "whisper-turbo";
 import toast from "react-hot-toast";
 import { humanFileSize } from "../util";
 import ProgressBar from "./progressBar";
 import ModelSelector from "./modelSelector";
+import { Segment } from "whisper-webgpu";
 
 export interface TSSegment {
     text: string;
@@ -22,7 +22,8 @@ export interface TSTranscript {
 }
 
 interface ControlPanelProps {
-    setTranscript: (transcript: TSTranscript) => void;
+    transcript: TSTranscript;
+    setTranscript: React.Dispatch<React.SetStateAction<TSTranscript>>;
 }
 
 const ControlPanel = (props: ControlPanelProps) => {
@@ -46,7 +47,7 @@ const ControlPanel = (props: ControlPanelProps) => {
         }
         setMic(await MicRecorder.start());
     };
-    
+
     const handleStop = () => async () => {
         if (!mic) {
             return;
@@ -112,16 +113,17 @@ const ControlPanel = (props: ControlPanelProps) => {
             toast.error("No audio file loaded");
             return;
         }
-        let result = await session.current.transcribe(audioData!);
-        //@ts-ignore
-        let [state, data] = result.repr;
-        if(state == "Err") {
-            toast.error(data.message);
-            return;
-        }
-
-        console.log(data);
-        props.setTranscript(data as unknown as TSTranscript);
+        await session.current.transcribe(audioData!, (s: Segment) => {
+            props.setTranscript((transcript: TSTranscript) => {
+                return {
+                    ...transcript,
+                    segments: [
+                        ...transcript.segments,
+                        s as unknown as TSSegment,
+                    ],
+                };
+            });
+        });
     };
 
     return (
