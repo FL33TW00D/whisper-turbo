@@ -87,9 +87,14 @@ const ControlPanel = (props: ControlPanelProps) => {
             session.current.destroy();
         }
         if (!selectedModel) {
+            console.error("No model selected");
+            return;
+        }
+        if (!loadedModel) {
             console.error("No model loaded");
             return;
         }
+
         const manager = new SessionManager();
         const loadResult = await manager.loadModel(
             selectedModel,
@@ -185,6 +190,7 @@ const ControlPanel = (props: ControlPanelProps) => {
                             name="audioFile"
                             id="audioFile"
                             onChange={handleAudioFile()}
+                            accept=".wav,.aac,.m4a,.mp4,.mp3"
                         />
 
                         {/*
