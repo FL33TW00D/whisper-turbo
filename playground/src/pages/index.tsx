@@ -6,6 +6,7 @@ import ControlPanel, {
     TSSegment,
     TSTranscript,
 } from "../components/controlPanel";
+import WebGPUModal from "../components/modal";
 
 const vt = VT323({ weight: "400", display: "swap" });
 
@@ -55,6 +56,7 @@ const Home: NextPage = () => {
                     </div>
                 </div>
             </div>
+            <WebGPUModal />
         </Layout>
     );
 };
