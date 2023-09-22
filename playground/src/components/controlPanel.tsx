@@ -29,6 +29,7 @@ const ControlPanel = (props: ControlPanelProps) => {
     const [selectedModel, setSelectedModel] = useState<AvailableModels | null>(
         null
     );
+    const [modelLoading, setModelLoading] = useState<boolean>(false);
     const [loadedModel, setLoadedModel] = useState<AvailableModels | null>(
         null
     );
@@ -86,14 +87,14 @@ const ControlPanel = (props: ControlPanelProps) => {
         if (session.current) {
             session.current.destroy();
         }
+        if (modelLoading) {
+            return;
+        }
         if (!selectedModel) {
             console.error("No model selected");
             return;
         }
-        if (!loadedModel) {
-            console.error("No model loaded");
-            return;
-        }
+        setModelLoading(true);
 
         const manager = new SessionManager();
         const loadResult = await manager.loadModel(
@@ -107,6 +108,7 @@ const ControlPanel = (props: ControlPanelProps) => {
         if (loadResult.isErr) {
             toast.error(loadResult.error.message);
         } else {
+            setModelLoading(false);
             session.current = loadResult.value;
         }
     };
@@ -155,10 +157,10 @@ const ControlPanel = (props: ControlPanelProps) => {
                         {selectedModel != loadedModel && progress == 0 && (
                             <div className="flex flex-row justify-end">
                                 <button
-                                    className="text-white text-2xl font-semibold mt-2"
+                                    className="outline text-white text-2xl font-semibold mt-2 px-3 bg-pop-orange"
                                     onClick={loadModel}
                                 >
-                                    Load
+                                    {modelLoading ? "Loading..." : "Load"}
                                 </button>
                             </div>
                         )}
