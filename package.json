@@ -5,11 +5,19 @@
     "author": "Christopher Fleetwood <chris@fleetwood.dev>",
     "description": "GPU accelerated Whisper",
     "repository": "FL33TW00D/whisper-turbo",
-    "keywords": ["rust", "WebGPU", "ML", "Machine Learning", "AI"],
+    "keywords": [
+        "rust",
+        "WebGPU",
+        "ML",
+        "Machine Learning",
+        "AI"
+    ],
     "main": "./dist/index.cjs",
     "module": "./dist/index.js",
     "types": "dist/index.d.ts",
-    "files": ["dist"],
+    "files": [
+        "dist"
+    ],
     "exports": {
         ".": {
             "types": "./dist/index.d.ts",
@@ -23,12 +31,12 @@
         "@typescript-eslint/eslint-plugin": "^6.7.2",
         "@typescript-eslint/parser": "^6.7.2",
         "eslint": "^8.49.0",
-        "tsup": "^7.2.0",
         "typescript": "~5.2.2"
     },
     "scripts": {
-        "dev": "tsup --watch",
-        "build": "tsup",
+        "dev": "vite",
+        "clean": "rm -rf node_modules/ dist/",
+        "build": "tsc && vite build",
         "format": "prettier --write \"src/**/*.ts\"",
         "lint": "eslint ./src"
     },
@@ -38,8 +46,12 @@
         "p-limit": "^4.0.0",
         "p-retry": "^5.1.2",
         "true-myth": "^6.2.0",
+        "tsup": "^7.2.0",
         "uuid": "^9.0.1",
+        "vite": "^4.4.9",
         "whisper-webgpu": "0.4.0"
     },
-    "include": ["src/**/*.ts"]
+    "include": [
+        "src/**/*.ts"
+    ]
 }

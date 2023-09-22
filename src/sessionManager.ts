@@ -43,12 +43,9 @@ export class SessionManager {
         onProgress: (progress: number) => void
     ): Promise<Result<InferenceSession, Error>> {
         if (spawnWorker && typeof document !== "undefined") {
-            const worker = new Worker(
-                new URL("./session.worker.js", import.meta.url),
-                {
-                    type: "module",
-                }
-            );
+	    const worker = new Worker(new URL("./session.worker.js", import.meta.url), {
+		type: "module",
+	    });
             const SessionWorker = Comlink.wrap<typeof Session>(worker);
             const session = await new SessionWorker();
             const initResult = await session.initSession(
