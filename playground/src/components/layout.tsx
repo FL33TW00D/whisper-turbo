@@ -22,6 +22,11 @@ export default function Layout(props: LayoutProps) {
             <Head>
                 <title>{props.title}</title>
                 <meta property="og:title" content={props.title} />
+                <meta name="description" content="Transcribe any audio file - completely free!" /> 
+                <meta
+                    property="og:description"
+                    content="Transcribe any audio file - completely free!"
+                />
             </Head>
             <main className="flex flex-1 flex-col">
                 <Toaster />
