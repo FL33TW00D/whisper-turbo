@@ -36,11 +36,14 @@ interface ModelDBSchema extends DBSchema {
  * ```
  */
 export default class ModelDB {
-    private readonly remoteUrl = "https://rmbl.us";
+    private remoteUrl = "https://rmbl.us";
     private db: IDBPDatabase<ModelDBSchema> | null;
 
     private constructor(db: IDBPDatabase<ModelDBSchema>) {
         this.db = db;
+        this.remoteUrl = process.env.NEXT_PUBLIC_REMOTE_URL || this.remoteUrl;
+        console.log(`Using remote URL: ${this.remoteUrl}`);
+        console.log(`next public remote url: ${process.env.NEXT_PUBLIC_REMOTE_URL}`);
     }
 
     public static async create(): Promise<ModelDB> {

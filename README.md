@@ -3,28 +3,27 @@
 <p><a href="https://whisper-turbo.com">Demo Site</a> | <a href="">Docs</a> | <a href="https://github.com/users/FL33TW00D/projects/1"> Roadmap </a></p>
 </div>
 
-
 ## What is Whisper Turbo?
-Whisper Turbo is a lightning-fast, **cross-platform** Whisper implementation, designed to run entirely client-side on your browser or electron app.
-Powered by Rust, WebAssembly & WebGPU, you can see ~20x real-time speeds.
+Whisper Turbo is a lightning-fast, **cross-platform** Whisper implementation, designed to run entirely client-side in your browser or electron app.
+Powered by a custom runtime written in Rust, WebAssembly & WebGPU, you can see ~20x real-time speeds.
 
-Being client-side, Whisper-Turbo offers a few key benefits:
+Whisper-Turbo offers a few key benefits:
 1. Real-time streaming (WIP) - simply speak into your microphone and watch the text appear in real-time like a sci-fi movie.
-2. Completely private & offline
+2. Completely private & offline.
 3. Free!*
+
+Check out [Getting Started]() for more.
 
 ## Supported Platforms
 
-WebGPU is only currently available on stable release Chrome Version >= 113.
-Firefox & Safari do not currently ship WebGPU.
+WebGPU is only officially supported on Chromium based browser running on Windows & MacOS, but is available behind
+a feature flag on Linux. Check [here](https://github.com/gpuweb/gpuweb/wiki/Implementation-Status) for an up to
+date implementation status.
 
-Windows + MacOS are supported, Linux is not.
-Given that WebGPU is not supported on all platforms, we (intend to) offer the ability to provide your OAI key, so that
-100% of your users have the best possible experience.
 
-## Install
+## Getting Started 
 
-In alpha currently, use at your own risk.
+In alpha currently, expect breaking changes.
 
 ```bash
 npm install whisper-turbo
@@ -34,7 +33,7 @@ npm install whisper-turbo
 
 Coming soon
 
-## Want to help?
+## Want to get involved?
 
 - Are you a GPU wizard?
 - Do you know what a HRTB is in Rust?
