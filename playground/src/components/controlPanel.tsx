@@ -13,6 +13,7 @@ export interface TSSegment {
     text: string;
     start: number;
     stop: number;
+    last: boolean;
 }
 
 export interface TSTranscript {
@@ -22,6 +23,7 @@ export interface TSTranscript {
 interface ControlPanelProps {
     transcript: TSTranscript;
     setTranscript: React.Dispatch<React.SetStateAction<TSTranscript>>;
+    setDownloadAvailable: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ControlPanel = (props: ControlPanelProps) => {
@@ -38,6 +40,8 @@ const ControlPanel = (props: ControlPanelProps) => {
     const [blobUrl, setBlobUrl] = useState<string | null>(null);
     const [loaded, setLoaded] = useState<boolean>(false);
     const [progress, setProgress] = useState<number>(0);
+    const [transcribing, setTranscribing] = useState<boolean>(false);
+
     {
         /*
     const [mic, setMic] = useState<MicRecorder | null>(null);
@@ -122,7 +126,19 @@ const ControlPanel = (props: ControlPanelProps) => {
             toast.error("No audio file loaded");
             return;
         }
+        props.setTranscript((transcript: TSTranscript) => {
+            return {
+                ...transcript,
+                segments: [],
+            };
+        });
+        setTranscribing(true);
         await session.current.transcribe(audioData!, (s: any) => {
+            if (s.last) {
+                setTranscribing(false);
+                props.setDownloadAvailable(true);
+                return;
+            }
             props.setTranscript((transcript: TSTranscript) => {
                 return {
                     ...transcript,
@@ -133,7 +149,7 @@ const ControlPanel = (props: ControlPanelProps) => {
     };
 
     return (
-        <div className="flex-1 w-1/2 h-full flex flex-col relative z-10 overflow-scroll">
+        <div className="flex-1 w-1/2 h-full flex flex-col relative z-10 overflow-hidden">
             <div className="h-full px-4 xl:pl-32 my-4">
                 <img
                     src="/whisper-turbo.png"
@@ -237,12 +253,30 @@ const ControlPanel = (props: ControlPanelProps) => {
 
                 <div className="flex flex-row pt-8 gap-4 mx-auto">
                     <button
-                        className="bg-pop-orange text-2xl outline outline-white text-white font-semibold py-3 px-8  mx-auto cursor-pointer active:bg-pop-orange-dark"
+                        className="bg-pop-orange text-2xl outline outline-white text-white font-semibold py-3 px-8 mx-auto cursor-pointer active:bg-pop-orange-dark"
                         onClick={runSession}
+                        disabled={transcribing}
                     >
-                        Transcribe
+                        {transcribing ? (
+                            <div className="flex p-4">
+                                <span className="loader"></span>
+                            </div>
+                        ) : (
+                            "Transcribe"
+                        )}
                     </button>
                 </div>
+            </div>
+            <div className="absolute bottom-0 w-full text-center px-4 xl:pl-32">
+                <p className="text-2xl text-white mx-auto">
+                    Built by{" "}
+                    <a
+                        href="https://twitter.com/fleetwood___"
+                        className="hover:underline hover:text-blue-600"
+                    >
+                        @fleetwood
+                    </a>
+                </p>
             </div>
         </div>
     );
