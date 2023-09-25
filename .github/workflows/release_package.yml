@@ -73,7 +73,7 @@ jobs:
       - name: Bump playground
         working-directory: "./playground"
         run: |
-          npm install whisper-turbo@${{ env.NEW_VERSION }}
+          pnpm install whisper-turbo@${{ env.NEW_VERSION }}
           git add "package.json" "pnpm-lock.yaml"
           git commit -m "chore: bump whisper-turbo"
 
