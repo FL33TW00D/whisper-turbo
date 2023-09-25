@@ -30,8 +30,8 @@ dependencies:
     specifier: ^7.1.0
     version: 7.1.0
   whisper-turbo:
-    specifier: ^0.7.0
-    version: 0.7.0
+    specifier: file:..
+    version: file:..
 
 devDependencies:
   '@tailwindcss/typography':
@@ -2786,20 +2786,6 @@ packages:
     dependencies:
       isexe: 2.0.0
 
-  /whisper-turbo@0.7.0:
-    resolution: {integrity: sha512-JHF/FAApSBSLN8AU6k4U/x0MhZvVF0UV8xjclhygS31UFA3gyDJME2BGidr25obfFVbUo/YwLdP9v1Sy+yNmrg==}
-    dependencies:
-      '@ffmpeg/ffmpeg': 0.12.6
-      '@ffmpeg/util': 0.12.1
-      comlink: 4.3.1
-      idb: 7.1.1
-      p-limit: 4.0.0
-      p-retry: 5.1.2
-      true-myth: 6.2.0
-      uuid: 9.0.1
-      whisper-webgpu: 0.6.0
-    dev: false
-
   /whisper-webgpu@0.6.0:
     resolution: {integrity: sha512-Y1vA+wRE6/slwM77yOcIGyHzeu5FmY9MoTltZOw3Lt9U8f+Gbw7NxVDUoCyZdyCBSH7Yjhe967bR3ShmLySRNg==}
     dev: false
@@ -2822,4 +2808,19 @@ packages:
   /yocto-queue@1.0.0:
     resolution: {integrity: sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==}
     engines: {node: '>=12.20'}
+    dev: false
+
+  file:..:
+    resolution: {directory: .., type: directory}
+    name: whisper-turbo
+    dependencies:
+      '@ffmpeg/ffmpeg': 0.12.6
+      '@ffmpeg/util': 0.12.1
+      comlink: 4.3.1
+      idb: 7.1.1
+      p-limit: 4.0.0
+      p-retry: 5.1.2
+      true-myth: 6.2.0
+      uuid: 9.0.1
+      whisper-webgpu: 0.6.0
     dev: false
