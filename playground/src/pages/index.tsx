@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import { VT323 } from "@next/font/google";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Layout from "../components/layout";
 import ControlPanel, {
     TSSegment,
@@ -14,6 +14,20 @@ const Home: NextPage = () => {
     const [transcript, setTranscript] = useState<TSTranscript>({
         segments: [],
     });
+    const [downloadAvailable, setDownloadAvailable] = useState(false);
+
+    const handleDownload = () => {
+        const jsonData = JSON.stringify(transcript);
+        const blob = new Blob([jsonData], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.download = "transcript.json";
+        link.href = url;
+
+        link.click();
+        link.remove();
+    };
 
     return (
         <Layout title={"Whisper Turbo"}>
@@ -22,6 +36,7 @@ const Home: NextPage = () => {
                     <ControlPanel
                         transcript={transcript!}
                         setTranscript={setTranscript}
+                        setDownloadAvailable={setDownloadAvailable}
                     />
                     <div className="flex-1 w-1/2 h-full flex flex-col relative z-10">
                         <div className="h-full flex flex-col mx-auto px-4 xl:pr-32 overflow-scroll py-12 w-full">
@@ -51,6 +66,18 @@ const Home: NextPage = () => {
                                             );
                                         }
                                     )}
+                                {downloadAvailable ? (
+                                    <div className="flex flex-row justify-end py-4">
+                                        <button
+                                            className="bg-green-500 outline hover:bg-green-700 text-white font-bold py-2 px-4"
+                                            onClick={handleDownload}
+                                        >
+                                            Download
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <></>
+                                )}
                             </div>
                         </div>
                     </div>
