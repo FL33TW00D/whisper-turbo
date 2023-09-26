@@ -1,29 +1,29 @@
 <div align="center">
 <img width="550px" height="200px" src="https://github.com/FL33TW00D/whisper-turbo/raw/master/.github/whisper-turbo.png">
+<p><a href="https://whisper-turbo.com">Demo Site</a> | <a href="">Docs</a> | <a href="https://github.com/users/FL33TW00D/projects/1"> Roadmap </a></p>
 </div>
 
 ## What is Whisper Turbo?
+Whisper Turbo is a lightning-fast, **cross-platform** Whisper implementation, designed to run entirely client-side in your browser or electron app.
+Powered by a custom runtime written in Rust, WebAssembly & WebGPU, you can see ~20x real-time speeds.
 
-Whisper Turbo intends to be a **drop-in** replacement for the OpenAI Whisper API. This is built up from 3 things:
+Whisper-Turbo offers a few key benefits:
+1. Real-time streaming (WIP) - simply speak into your microphone and watch the text appear in real-time like a sci-fi movie.
+2. Completely private & offline.
+3. Free!*
 
-1. A smooth compatibility layer for ingesting audio files of various formats and converting them to be Whisper compatible.
-2. Developer-friendly APIs for one-shot inference and streaming.
-3. The core Rust + WebGPU inference framework, Rumble, designed from the ground up for fast, cross-platform inference.
-
-## RoadMap
-
-Check out [the roadmap](https://github.com/users/FL33TW00D/projects/1).
+Check out [Getting Started]() for more.
 
 ## Supported Platforms
 
-WebGPU is only currently available on stable release Chrome Version >= 113.
-Firefox & Safari do not currently ship WebGPU.
+WebGPU is only officially supported on Chromium based browser running on Windows & MacOS, but is available behind
+a feature flag on Linux. Check [here](https://github.com/gpuweb/gpuweb/wiki/Implementation-Status) for an up to
+date implementation status.
 
-Windows + MacOS are supported, Linux is not.
 
-## Install
+## Getting Started 
 
-In alpha currently, use at your own risk.
+In alpha currently, expect breaking changes.
 
 ```bash
 npm install whisper-turbo
@@ -33,7 +33,7 @@ npm install whisper-turbo
 
 Coming soon
 
-## Want to help?
+## Want to get involved?
 
 - Are you a GPU wizard?
 - Do you know what a HRTB is in Rust?
