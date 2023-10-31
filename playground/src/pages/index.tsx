@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import { VT323 } from "@next/font/google";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import Layout from "../components/layout";
 import ControlPanel, {
     TSSegment,

@@ -42,6 +42,13 @@ const ControlPanel = (props: ControlPanelProps) => {
     const [progress, setProgress] = useState<number>(0);
     const [transcribing, setTranscribing] = useState<boolean>(false);
 
+    useEffect(() => {
+        if (loadedModel && selectedModel != loadedModel && !transcribing) {
+            setLoaded(false);
+            setProgress(0);
+        }
+    }, [selectedModel]);
+
     {
         /*
     const [mic, setMic] = useState<MicRecorder | null>(null);
