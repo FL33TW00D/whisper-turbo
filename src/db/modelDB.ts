@@ -159,7 +159,7 @@ export default class ModelDB {
         model: AvailableModels,
         onProgress: (progress: number) => void
     ): Promise<Result<void, Error>> {
-        const remoteURL = `${this.remoteUrl}/whisper-turbo/${model}-pf16-full.bin`;
+        const remoteURL = `${this.remoteUrl}/whisper-turbo/${model}-q8g16.bin`;
         const fetchResult = await this.fetchBytes(remoteURL, onProgress);
 
         if (fetchResult.isErr) {

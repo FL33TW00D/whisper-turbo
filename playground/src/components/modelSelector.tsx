@@ -37,7 +37,7 @@ const ModelSelector = (props: ModelSelectorProps) => {
     };
 
     const fmtModel = (model: AvailableModels) => {
-        let name = model.split("-")[1];
+        let name = model as string;
         name = name.charAt(0).toUpperCase() + name.slice(1);
         return name;
     };
