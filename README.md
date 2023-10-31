@@ -4,26 +4,18 @@
 </div>
 
 ## What is Whisper Turbo?
-Whisper Turbo is a lightning-fast, **cross-platform** Whisper implementation, designed to run entirely client-side in your browser or electron app.
-Powered by a custom runtime written in Rust, WebAssembly & WebGPU, you can see ~20x real-time speeds.
+Whisper Turbo is a fast, **cross-platform** Whisper implementation, designed to run entirely client-side in your browser/electron app.
 
-Whisper-Turbo offers a few key benefits:
-1. Real-time streaming (WIP) - simply speak into your microphone and watch the text appear in real-time like a sci-fi movie.
-2. Completely private & offline.
-3. Free!*
+With Whisper Turbo, you can add transcription to any app in minutes.
 
 Check out [Getting Started]() for more.
 
 ## Supported Platforms
 
-WebGPU is only officially supported on Chromium based browser running on Windows & MacOS, but is available behind
-a feature flag on Linux. Check [here](https://github.com/gpuweb/gpuweb/wiki/Implementation-Status) for an up to
-date implementation status.
-
+WebGPU is only officially supported on Chromium based browsers running on Windows & MacOS.
+For Linux support, check [here](https://github.com/gpuweb/gpuweb/wiki/Implementation-Status).
 
 ## Getting Started 
-
-In alpha currently, expect breaking changes.
 
 ```bash
 npm install whisper-turbo
