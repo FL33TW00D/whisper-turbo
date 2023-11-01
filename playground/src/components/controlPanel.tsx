@@ -2,14 +2,13 @@ import { useState, useRef, useEffect } from "react";
 import {
     AvailableModels,
     InferenceSession,
-    MicRecorder,
     SessionManager,
 } from "whisper-turbo";
 import toast from "react-hot-toast";
 import { humanFileSize } from "../util";
 import ProgressBar from "./progressBar";
 import ModelSelector from "./modelSelector";
-import MicButton from "./micButton";
+import MicButton, { AudioMetadata } from "./micButton";
 
 export interface TSSegment {
     text: string;
@@ -38,7 +37,9 @@ const ControlPanel = (props: ControlPanelProps) => {
         null
     );
     const [audioData, setAudioData] = useState<Uint8Array | null>(null);
-    const [audioMetadata, setAudioMetadata] = useState<File | null>(null);
+    const [audioMetadata, setAudioMetadata] = useState<AudioMetadata | null>(
+        null
+    );
     const [blobUrl, setBlobUrl] = useState<string | null>(null);
     const [loaded, setLoaded] = useState<boolean>(false);
     const [progress, setProgress] = useState<number>(0);
@@ -59,7 +60,10 @@ const ControlPanel = (props: ControlPanelProps) => {
         const reader = new FileReader();
         reader.onload = () => {
             setAudioData(new Uint8Array(reader.result as ArrayBuffer));
-            setAudioMetadata(file);
+            setAudioMetadata({
+                file: file,
+                fromMic: false,
+            });
         };
         reader.readAsArrayBuffer(file);
     };
@@ -117,19 +121,23 @@ const ControlPanel = (props: ControlPanelProps) => {
             };
         });
         setTranscribing(true);
-        await session.current.transcribe(audioData!, (s: any) => {
-            if (s.last) {
-                setTranscribing(false);
-                props.setDownloadAvailable(true);
-                return;
+        await session.current.transcribe(
+            audioData!,
+            audioMetadata!.fromMic,
+            (s: any) => {
+                if (s.last) {
+                    setTranscribing(false);
+                    props.setDownloadAvailable(true);
+                    return;
+                }
+                props.setTranscript((transcript: TSTranscript) => {
+                    return {
+                        ...transcript,
+                        segments: [...transcript.segments, s],
+                    };
+                });
             }
-            props.setTranscript((transcript: TSTranscript) => {
-                return {
-                    ...transcript,
-                    segments: [...transcript.segments, s],
-                };
-            });
-        });
+        );
     };
 
     return (
@@ -177,7 +185,7 @@ const ControlPanel = (props: ControlPanelProps) => {
                                 <div className="flex flex-row justify-between">
                                     <span className="">
                                         {audioData && audioMetadata
-                                            ? audioMetadata.name
+                                            ? audioMetadata.file.name
                                             : `Select Audio File`}
                                     </span>
                                     <span className="my-auto">

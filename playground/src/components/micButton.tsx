@@ -4,7 +4,12 @@ import { MicRecorder } from "whisper-turbo";
 interface MicButtonProps {
     setBlobUrl: (blobUrl: string) => void;
     setAudioData: (audioData: Uint8Array) => void;
-    setAudioMetadata: (audioMetadata: File) => void;
+    setAudioMetadata: (audioMetadata: AudioMetadata) => void;
+}
+
+export interface AudioMetadata {
+    file: File;
+    fromMic: boolean;
 }
 
 const MicButton = (props: MicButtonProps) => {
@@ -23,7 +28,10 @@ const MicButton = (props: MicButtonProps) => {
         let blob = recording.blob;
         props.setBlobUrl(URL.createObjectURL(blob));
         props.setAudioData(new Uint8Array(await blob.arrayBuffer()));
-        props.setAudioMetadata(new File([blob], "recording.wav"));
+        props.setAudioMetadata({
+            file: new File([blob], "recording.wav"),
+            fromMic: true,
+        });
         setMic(null);
     };
 
