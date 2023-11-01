@@ -1,8 +1,8 @@
 ---
 title: Whisper Turbo 
-emoji: 🎤
-colorFrom: orange 
-colorTo: blue 
+emoji: 🗣️🏎️
+colorFrom: blue 
+colorTo: gray 
 sdk: static
 pinned: true
 ---
