@@ -43,6 +43,10 @@ export class MicRecorder {
         return recorder;
     }
 
+    public isRecording(): boolean {
+        return this.inner !== null && this.inner.state === "recording";
+    }
+
     public async stop(): Promise<Recording> {
         if (!this.inner) {
             throw new Error("Please start the recorder first");
@@ -55,9 +59,7 @@ export class MicRecorder {
                     type: this.inner!.mimeType,
                 });
                 
-                console.log("MimeType: " + this.inner!.mimeType);
                 if (this.inner!.mimeType.includes("webm")) {
-                    console.log("Fixing webm duration");
                     blob = await fixWebmDuration(blob, duration, {logger: false})
                 }
                 const reader = new FileReader();

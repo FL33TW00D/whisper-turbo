@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import { humanFileSize } from "../util";
 import ProgressBar from "./progressBar";
 import ModelSelector from "./modelSelector";
+import MicButton from "./micButton";
 
 export interface TSSegment {
     text: string;
@@ -49,24 +50,6 @@ const ControlPanel = (props: ControlPanelProps) => {
             setProgress(0);
         }
     }, [selectedModel]);
-
-    const [mic, setMic] = useState<MicRecorder | null>(null);
-
-    const handleRecord = () => async () => {
-        setMic(await MicRecorder.start());
-    };
-
-    const handleStop = () => async () => {
-        if (!mic) {
-            return;
-        }
-        let recording = await mic.stop();
-        let blob = recording.blob;
-        setBlobUrl(URL.createObjectURL(blob));
-        setAudioData(new Uint8Array(await blob.arrayBuffer()));
-        setAudioMetadata(new File([blob], "recording.wav"));
-        setMic(null);
-    };
 
     const handleAudioFile = () => async (event: any) => {
         const file = event.target.files[0];
@@ -182,50 +165,42 @@ const ControlPanel = (props: ControlPanelProps) => {
                             </div>
                         )}
                     </div>
-                    <div className="flex flex-col">
-                        <label className="text-white text-xl font-semibold">
-                            Upload Audio
-                        </label>
-                        <label
-                            className="bg-pop-orange text-xl outline outline-white w-full text-white font-semibold py-2.5 px-8 mx-auto cursor-pointer"
-                            htmlFor="audioFile"
-                        >
-                            <div className="flex flex-row justify-between">
-                                <span className="">
-                                    {audioData && audioMetadata
-                                        ? audioMetadata.name
-                                        : `Select Audio File`}
-                                </span>
-                                <span className="my-auto">
-                                    {audioData
-                                        ? humanFileSize(audioData.length)
-                                        : ""}
-                                </span>
-                            </div>
-                        </label>
-                        <input
-                            type="file"
-                            className="hidden"
-                            name="audioFile"
-                            id="audioFile"
-                            onChange={handleAudioFile()}
-                            accept=".wav,.aac,.m4a,.mp4,.mp3"
-                        />
-
-                        <div className="flex flex-row justify-between">
-                            <button
-                                className="bg-pop-orange text-xl outline outline-white text-white font-semibold py-2.5 px-8 mx-auto cursor-pointer active:bg-pop-orange-dark"
-                                onClick={handleRecord()}
+                    <div className="flex flex-row gap-4">
+                        <div className="flex flex-col w-full">
+                            <label className="text-white text-xl font-semibold">
+                                Upload Audio
+                            </label>
+                            <label
+                                className="bg-pop-orange text-xl outline outline-white w-full text-white font-semibold py-2.5 px-8 mx-auto cursor-pointer w-full"
+                                htmlFor="audioFile"
                             >
-                                Record
-                            </button>
-                            <button
-                                className="bg-pop-orange text-xl outline outline-white text-white font-semibold py-2.5 px-8 mx-auto cursor-pointer active:bg-pop-orange-dark"
-                                onClick={handleStop()}
-                            >
-                                Stop
-                            </button>
+                                <div className="flex flex-row justify-between">
+                                    <span className="">
+                                        {audioData && audioMetadata
+                                            ? audioMetadata.name
+                                            : `Select Audio File`}
+                                    </span>
+                                    <span className="my-auto">
+                                        {audioData
+                                            ? humanFileSize(audioData.length)
+                                            : ""}
+                                    </span>
+                                </div>
+                            </label>
+                            <input
+                                type="file"
+                                className="hidden"
+                                name="audioFile"
+                                id="audioFile"
+                                onChange={handleAudioFile()}
+                                accept=".wav,.aac,.m4a,.mp4,.mp3"
+                            />
                         </div>
+                        <MicButton
+                            setBlobUrl={setBlobUrl}
+                            setAudioData={setAudioData}
+                            setAudioMetadata={setAudioMetadata}
+                        />
                     </div>
                     {blobUrl && (
                         <div>
