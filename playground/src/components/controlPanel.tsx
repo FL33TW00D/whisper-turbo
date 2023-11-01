@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import {
     AvailableModels,
     InferenceSession,
+    MicRecorder,
     SessionManager,
 } from "whisper-turbo";
 import toast from "react-hot-toast";
@@ -49,14 +50,9 @@ const ControlPanel = (props: ControlPanelProps) => {
         }
     }, [selectedModel]);
 
-    {
-        /*
     const [mic, setMic] = useState<MicRecorder | null>(null);
 
     const handleRecord = () => async () => {
-        if (mic?.isRecording()) {
-            await mic.stop();
-        }
         setMic(await MicRecorder.start());
     };
 
@@ -64,15 +60,13 @@ const ControlPanel = (props: ControlPanelProps) => {
         if (!mic) {
             return;
         }
-        await mic.stop();
-        let blob = mic.getBlob();
+        let recording = await mic.stop();
+        let blob = recording.blob;
         setBlobUrl(URL.createObjectURL(blob));
         setAudioData(new Uint8Array(await blob.arrayBuffer()));
         setAudioMetadata(new File([blob], "recording.wav"));
         setMic(null);
     };
-    */
-    }
 
     const handleAudioFile = () => async (event: any) => {
         const file = event.target.files[0];
@@ -218,7 +212,6 @@ const ControlPanel = (props: ControlPanelProps) => {
                             accept=".wav,.aac,.m4a,.mp4,.mp3"
                         />
 
-                        {/*
                         <div className="flex flex-row justify-between">
                             <button
                                 className="bg-pop-orange text-xl outline outline-white text-white font-semibold py-2.5 px-8 mx-auto cursor-pointer active:bg-pop-orange-dark"
@@ -233,7 +226,6 @@ const ControlPanel = (props: ControlPanelProps) => {
                                 Stop
                             </button>
                         </div>
-                        */}
                     </div>
                     {blobUrl && (
                         <div>

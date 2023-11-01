@@ -8,6 +8,9 @@ dependencies:
   comlink:
     specifier: 4.3.1
     version: 4.3.1
+  fix-webm-duration:
+    specifier: ^1.0.5
+    version: 1.0.5
   idb:
     specifier: ^7.1.1
     version: 7.1.1
@@ -21,8 +24,8 @@ dependencies:
     specifier: ^9.0.1
     version: 9.0.1
   whisper-webgpu:
-    specifier: 0.7.0
-    version: 0.7.0
+    specifier: file:../whisper-web/target/pkg
+    version: file:../whisper-web/target/pkg
 
 devDependencies:
   '@types/node':
@@ -566,6 +569,10 @@ packages:
       path-exists: 4.0.0
     dev: true
 
+  /fix-webm-duration@1.0.5:
+    resolution: {integrity: sha512-b6oula3OfSknx0aWoLsxvp4DVIYbwsf+UAkr6EDAK3iuMYk/OSNKzmeSI61GXK0MmFTEuzle19BPvTxMIKjkZg==}
+    dev: false
+
   /flat-cache@3.1.1:
     resolution: {integrity: sha512-/qM2b3LUIaIgviBQovTLvijfyOQXPtSRnRK26ksj2J7rzPIecePUIpJsZ4T02Qg+xiAEKIs5K8dsHEd+VaKa/Q==}
     engines: {node: '>=12.0.0'}
@@ -993,10 +1000,6 @@ packages:
       isexe: 2.0.0
     dev: true
 
-  /whisper-webgpu@0.7.0:
-    resolution: {integrity: sha512-1Nsp9WuAzZB6gMUjjOXxeIHZTzwIPDEcoJ0a23ttjo7x+R6iDhN/XotYiBkul9x9GqWSvZvMiCJ5Ad7QghjxEA==}
-    dev: false
-
   /wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
     dev: true
@@ -1009,3 +1012,8 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
     dev: true
+
+  file:../whisper-web/target/pkg:
+    resolution: {directory: ../whisper-web/target/pkg, type: directory}
+    name: whisper-webgpu
+    dev: false

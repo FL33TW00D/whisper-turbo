@@ -21,15 +21,20 @@ export class InferenceSession {
         return await this.session!.initSession(selectedModel, onProgress);
     }
 
-    public async transcribe(audio: Uint8Array): Promise<Result<Transcript, Error>>;
+    public async transcribe(
+        audio: Uint8Array,
+        raw_audio: boolean
+    ): Promise<Result<Transcript, Error>>;
 
     public async transcribe(
         audio: Uint8Array,
+        raw_audio: boolean,
         callback: (decoded: Segment) => void
     ): Promise<Result<void, Error>>;
 
     public async transcribe(
         audio: Uint8Array,
+        raw_audio: boolean,
         callback?: (decoded: Segment) => void
     ): Promise<Result<Transcript | void, Error>> {
         if (this.session == null) {
@@ -38,10 +43,11 @@ export class InferenceSession {
 
         if (callback) {
             if (this.session instanceof Session) {
-                return await this.session.stream(audio, callback);
+                return await this.session.stream(audio, raw_audio, callback);
             } else {
                 return await this.session!.stream(
                     audio,
+                    raw_audio,
                     Comlink.proxy(callback)
                 );
             }
