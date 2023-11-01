@@ -2,7 +2,7 @@ import fixWebmDuration from "fix-webm-duration";
 
 export interface Recording {
     blob: Blob;
-    pcm: ArrayBuffer;
+    buffer: ArrayBuffer;
 }
 
 export class MicRecorder {
@@ -52,28 +52,34 @@ export class MicRecorder {
             throw new Error("Please start the recorder first");
         }
 
-        return new Promise<Recording>((resolve) => {
-            this.inner!.addEventListener("stop", async () => {
-                const duration = Date.now() - this.currentStart!;
-                let blob = new Blob(this.audioChunks, {
-                    type: this.inner!.mimeType,
-                });
-                
-                if (this.inner!.mimeType.includes("webm")) {
-                    blob = await fixWebmDuration(blob, duration, {logger: false})
-                }
-                const reader = new FileReader();
-                reader.onloadend = () => {
+        const promise: Promise<Recording> = new Promise<Recording>(
+            (resolve) => {
+                this.inner!.addEventListener("stop", async () => {
+                    const duration = Date.now() - this.currentStart!;
+                    let blob = new Blob(this.audioChunks, {
+                        type: this.inner!.mimeType,
+                    });
+
+                    if (this.inner!.mimeType.includes("webm")) {
+                        blob = await fixWebmDuration(blob, duration, {
+                            logger: false,
+                        });
+                    }
+
+                    const buffer = await blob.arrayBuffer();
+
                     resolve({
                         blob,
-                        pcm: reader.result as ArrayBuffer,
+                        buffer,
                     });
-                };
-                reader.readAsArrayBuffer(blob);
-            });
-            this.inner!.stop();
-            this.currentStream!.getTracks().forEach((track) => track.stop());
-        });
+                });
+                this.inner!.stop();
+                this.currentStream!.getTracks().forEach((track) =>
+                    track.stop()
+                );
+            }
+        );
+        return promise;
     }
 }
 

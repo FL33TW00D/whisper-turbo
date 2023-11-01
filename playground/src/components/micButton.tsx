@@ -25,13 +25,18 @@ const MicButton = (props: MicButtonProps) => {
             return;
         }
         let recording = await mic.stop();
+        let ctx = new AudioContext({ sampleRate: 16000 });
+        let resampled = await ctx.decodeAudioData(recording.buffer);
+        let ch0 = resampled.getChannelData(0);
+        console.log("CHANNEL 0", ch0);
         let blob = recording.blob;
-        props.setBlobUrl(URL.createObjectURL(blob));
-        props.setAudioData(new Uint8Array(await blob.arrayBuffer()));
         props.setAudioMetadata({
             file: new File([blob], "recording.wav"),
             fromMic: true,
         });
+        props.setBlobUrl(URL.createObjectURL(blob));
+
+        props.setAudioData(new Uint8Array(ch0));
         setMic(null);
     };
 

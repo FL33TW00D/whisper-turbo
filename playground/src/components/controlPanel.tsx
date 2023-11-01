@@ -68,12 +68,14 @@ const ControlPanel = (props: ControlPanelProps) => {
         reader.readAsArrayBuffer(file);
     };
 
+    /*
     useEffect(() => {
         if (audioData) {
             const url = URL.createObjectURL(new Blob([audioData]));
             setBlobUrl(url);
         }
     }, [audioData]);
+    */
 
     const loadModel = async () => {
         if (session.current) {
@@ -121,6 +123,7 @@ const ControlPanel = (props: ControlPanelProps) => {
             };
         });
         setTranscribing(true);
+        console.log("Transcribing data: ", audioData);
         await session.current.transcribe(
             audioData!,
             audioMetadata!.fromMic,
