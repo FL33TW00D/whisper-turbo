@@ -115,7 +115,6 @@ const ControlPanel = (props: ControlPanelProps) => {
             };
         });
         setTranscribing(true);
-        console.log("Transcribing data: ", audioData);
         await session.current.transcribe(
             audioData!,
             audioMetadata!.fromMic,
