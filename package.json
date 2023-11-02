@@ -28,11 +28,12 @@
     },
     "dependencies": {
         "comlink": "4.3.1",
+        "fix-webm-duration": "^1.0.5",
         "idb": "^7.1.1",
         "p-retry": "^5.1.2",
         "true-myth": "^6.2.0",
         "uuid": "^9.0.1",
-        "whisper-webgpu": "0.7.0"
+        "whisper-webgpu": "0.8.0"
     },
     "files": [
         "dist/**/*"
