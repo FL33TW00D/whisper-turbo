@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import { humanFileSize } from "../util";
 import ProgressBar from "./progressBar";
 import ModelSelector from "./modelSelector";
+import MicButton, { AudioMetadata } from "./micButton";
 
 export interface TSSegment {
     text: string;
@@ -36,7 +37,9 @@ const ControlPanel = (props: ControlPanelProps) => {
         null
     );
     const [audioData, setAudioData] = useState<Uint8Array | null>(null);
-    const [audioMetadata, setAudioMetadata] = useState<File | null>(null);
+    const [audioMetadata, setAudioMetadata] = useState<AudioMetadata | null>(
+        null
+    );
     const [blobUrl, setBlobUrl] = useState<string | null>(null);
     const [loaded, setLoaded] = useState<boolean>(false);
     const [progress, setProgress] = useState<number>(0);
@@ -49,31 +52,6 @@ const ControlPanel = (props: ControlPanelProps) => {
         }
     }, [selectedModel]);
 
-    {
-        /*
-    const [mic, setMic] = useState<MicRecorder | null>(null);
-
-    const handleRecord = () => async () => {
-        if (mic?.isRecording()) {
-            await mic.stop();
-        }
-        setMic(await MicRecorder.start());
-    };
-
-    const handleStop = () => async () => {
-        if (!mic) {
-            return;
-        }
-        await mic.stop();
-        let blob = mic.getBlob();
-        setBlobUrl(URL.createObjectURL(blob));
-        setAudioData(new Uint8Array(await blob.arrayBuffer()));
-        setAudioMetadata(new File([blob], "recording.wav"));
-        setMic(null);
-    };
-    */
-    }
-
     const handleAudioFile = () => async (event: any) => {
         const file = event.target.files[0];
         if (!file) {
@@ -82,17 +60,14 @@ const ControlPanel = (props: ControlPanelProps) => {
         const reader = new FileReader();
         reader.onload = () => {
             setAudioData(new Uint8Array(reader.result as ArrayBuffer));
-            setAudioMetadata(file);
+            setAudioMetadata({
+                file: file,
+                fromMic: false,
+            });
+            setBlobUrl(URL.createObjectURL(file));
         };
         reader.readAsArrayBuffer(file);
     };
-
-    useEffect(() => {
-        if (audioData) {
-            const url = URL.createObjectURL(new Blob([audioData]));
-            setBlobUrl(url);
-        }
-    }, [audioData]);
 
     const loadModel = async () => {
         if (session.current) {
@@ -140,19 +115,23 @@ const ControlPanel = (props: ControlPanelProps) => {
             };
         });
         setTranscribing(true);
-        await session.current.transcribe(audioData!, (s: any) => {
-            if (s.last) {
-                setTranscribing(false);
-                props.setDownloadAvailable(true);
-                return;
+        await session.current.transcribe(
+            audioData!,
+            audioMetadata!.fromMic,
+            (s: any) => {
+                if (s.last) {
+                    setTranscribing(false);
+                    props.setDownloadAvailable(true);
+                    return;
+                }
+                props.setTranscript((transcript: TSTranscript) => {
+                    return {
+                        ...transcript,
+                        segments: [...transcript.segments, s],
+                    };
+                });
             }
-            props.setTranscript((transcript: TSTranscript) => {
-                return {
-                    ...transcript,
-                    segments: [...transcript.segments, s],
-                };
-            });
-        });
+        );
     };
 
     return (
@@ -188,52 +167,42 @@ const ControlPanel = (props: ControlPanelProps) => {
                             </div>
                         )}
                     </div>
-                    <div className="flex flex-col">
-                        <label className="text-white text-xl font-semibold">
-                            Upload Audio
-                        </label>
-                        <label
-                            className="bg-pop-orange text-xl outline outline-white w-full text-white font-semibold py-2.5 px-8 mx-auto cursor-pointer"
-                            htmlFor="audioFile"
-                        >
-                            <div className="flex flex-row justify-between">
-                                <span className="">
-                                    {audioData && audioMetadata
-                                        ? audioMetadata.name
-                                        : `Select Audio File`}
-                                </span>
-                                <span className="my-auto">
-                                    {audioData
-                                        ? humanFileSize(audioData.length)
-                                        : ""}
-                                </span>
-                            </div>
-                        </label>
-                        <input
-                            type="file"
-                            className="hidden"
-                            name="audioFile"
-                            id="audioFile"
-                            onChange={handleAudioFile()}
-                            accept=".wav,.aac,.m4a,.mp4,.mp3"
-                        />
-
-                        {/*
-                        <div className="flex flex-row justify-between">
-                            <button
-                                className="bg-pop-orange text-xl outline outline-white text-white font-semibold py-2.5 px-8 mx-auto cursor-pointer active:bg-pop-orange-dark"
-                                onClick={handleRecord()}
+                    <div className="flex flex-row gap-4">
+                        <div className="flex flex-col w-full">
+                            <label className="text-white text-xl font-semibold">
+                                Upload Audio
+                            </label>
+                            <label
+                                className="bg-pop-orange text-xl outline outline-white w-full text-white font-semibold py-2.5 px-8 mx-auto cursor-pointer w-full"
+                                htmlFor="audioFile"
                             >
-                                Record
-                            </button>
-                            <button
-                                className="bg-pop-orange text-xl outline outline-white text-white font-semibold py-2.5 px-8 mx-auto cursor-pointer active:bg-pop-orange-dark"
-                                onClick={handleStop()}
-                            >
-                                Stop
-                            </button>
+                                <div className="flex flex-row justify-between">
+                                    <span className="">
+                                        {audioData && audioMetadata
+                                            ? audioMetadata.file.name
+                                            : `Select Audio File`}
+                                    </span>
+                                    <span className="my-auto">
+                                        {audioData
+                                            ? humanFileSize(audioData.length)
+                                            : ""}
+                                    </span>
+                                </div>
+                            </label>
+                            <input
+                                type="file"
+                                className="hidden"
+                                name="audioFile"
+                                id="audioFile"
+                                onChange={handleAudioFile()}
+                                accept=".wav,.aac,.m4a,.mp4,.mp3"
+                            />
                         </div>
-                        */}
+                        <MicButton
+                            setBlobUrl={setBlobUrl}
+                            setAudioData={setAudioData}
+                            setAudioMetadata={setAudioMetadata}
+                        />
                     </div>
                     {blobUrl && (
                         <div>

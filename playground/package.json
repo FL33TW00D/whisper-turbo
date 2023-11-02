@@ -17,7 +17,7 @@
     "react-hot-toast": "^2.4.1",
     "react-responsive-modal": "^6.4.2",
     "true-myth": "^7.1.0",
-    "whisper-turbo": "0.8.0"
+    "whisper-turbo": "0.9.0"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.10",

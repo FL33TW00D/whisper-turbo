@@ -61,7 +61,9 @@ export class Session {
         return Result.ok(model);
     }
 
-    public async run(audio: Uint8Array): Promise<Result<whisper.Transcript, Error>> {
+    public async run(
+        audio: Uint8Array
+    ): Promise<Result<whisper.Transcript, Error>> {
         if (!this.whisperSession) {
             return Result.err(
                 new Error(
@@ -75,6 +77,7 @@ export class Session {
 
     public async stream(
         audio: Uint8Array,
+        raw_audio: boolean,
         callback: (decoded: whisper.Segment) => void
     ): Promise<Result<void, Error>> {
         if (!this.whisperSession) {
@@ -85,7 +88,9 @@ export class Session {
             );
         }
 
-        return Result.ok(await this.whisperSession.stream(audio, callback));
+        return Result.ok(
+            await this.whisperSession.stream(audio, raw_audio, callback)
+        );
     }
 }
 
