@@ -64,18 +64,10 @@ const ControlPanel = (props: ControlPanelProps) => {
                 file: file,
                 fromMic: false,
             });
+            setBlobUrl(URL.createObjectURL(file));
         };
         reader.readAsArrayBuffer(file);
     };
-
-    /*
-    useEffect(() => {
-        if (audioData) {
-            const url = URL.createObjectURL(new Blob([audioData]));
-            setBlobUrl(url);
-        }
-    }, [audioData]);
-    */
 
     const loadModel = async () => {
         if (session.current) {

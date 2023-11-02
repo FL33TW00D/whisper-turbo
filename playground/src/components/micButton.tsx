@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { MicRecorder } from "whisper-turbo";
 
+const SAMPLE_RATE = 16000;
+
 interface MicButtonProps {
     setBlobUrl: (blobUrl: string) => void;
     setAudioData: (audioData: Uint8Array) => void;
@@ -25,18 +27,17 @@ const MicButton = (props: MicButtonProps) => {
             return;
         }
         let recording = await mic.stop();
-        let ctx = new AudioContext({ sampleRate: 16000 });
+        let ctx = new AudioContext({ sampleRate: SAMPLE_RATE });
         let resampled = await ctx.decodeAudioData(recording.buffer);
         let ch0 = resampled.getChannelData(0);
-        console.log("CHANNEL 0", ch0);
+        props.setAudioData(new Uint8Array(ch0.buffer));
+
         let blob = recording.blob;
         props.setAudioMetadata({
             file: new File([blob], "recording.wav"),
             fromMic: true,
         });
         props.setBlobUrl(URL.createObjectURL(blob));
-
-        props.setAudioData(new Uint8Array(ch0));
         setMic(null);
     };
 
