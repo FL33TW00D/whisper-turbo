@@ -1,6 +1,6 @@
 <div align="center">
 <img width="550px" height="200px" src="https://github.com/FL33TW00D/whisper-turbo/raw/master/.github/whisper-turbo.png">
-<p><a href="https://whisper-turbo.com">Demo Site</a> | <a href="">Docs</a> | <a href="https://github.com/users/FL33TW00D/projects/1"> Roadmap </a></p>
+<p><a href="https://whisper-turbo.com">Demo Site</a> | <a href="https://ratchet.sh/whisper-turbo">Docs</a> | <a href="https://github.com/users/FL33TW00D/projects/1"> Roadmap </a></p>
 </div>
 
 ## What is Whisper Turbo?
