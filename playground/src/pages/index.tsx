@@ -4,7 +4,7 @@ import { useState } from "react";
 import Layout from "../components/layout";
 import WebGPUModal from "../components/modal";
 import { Segment } from "whisper-turbo";
-import ControlPanel from "../components/controlPanel";
+import ControlPanel, { Transcript } from "../components/controlPanel";
 
 const vt = VT323({ weight: "400", display: "swap" });
 
@@ -44,7 +44,7 @@ const Home: NextPage = () => {
                                         (segment: Segment) => {
                                             return (
                                                 <div
-                                                    key={segment}
+                                                    key={segment.start}
                                                     className="flex w-full py-4"
                                                 >
                                                     <div
