@@ -2,7 +2,7 @@ import { Session } from "./session.worker";
 import * as Comlink from "comlink";
 import { Result } from "true-myth";
 import { AvailableModels } from "./models";
-import { Segment, Transcript } from "whisper-webgpu";
+import { Segment } from "whisper-webgpu";
 
 //User facing API
 export class InferenceSession {
@@ -23,36 +23,45 @@ export class InferenceSession {
 
     public async transcribe(
         audio: Uint8Array,
-        raw_audio: boolean
-    ): Promise<Result<Transcript, Error>>;
+        raw_audio: boolean,
+        options: any
+    ): Promise<Result<any, Error>>;
 
     public async transcribe(
         audio: Uint8Array,
         raw_audio: boolean,
+        options: any,
         callback: (decoded: Segment) => void
     ): Promise<Result<void, Error>>;
 
-    public async transcribe(
+    async transcribe(
         audio: Uint8Array,
         raw_audio: boolean,
+        options: any,
         callback?: (decoded: Segment) => void
-    ): Promise<Result<Transcript | void, Error>> {
+    ): Promise<Result<any | void, Error>> {
         if (this.session == null) {
             return Result.err(new Error("Session not initialized"));
         }
 
         if (callback) {
             if (this.session instanceof Session) {
-                return await this.session.stream(audio, raw_audio, callback);
+                return await this.session.stream(
+                    audio,
+                    raw_audio,
+                    options,
+                    callback
+                );
             } else {
                 return await this.session!.stream(
                     audio,
                     raw_audio,
+                    options,
                     Comlink.proxy(callback)
                 );
             }
         } else {
-            return await this.session!.run(audio);
+            return await this.session!.run(audio, options);
         }
     }
 

@@ -30,8 +30,8 @@ dependencies:
     specifier: ^7.1.0
     version: 7.1.0
   whisper-turbo:
-    specifier: 0.9.0
-    version: 0.9.0
+    specifier: file:..
+    version: file:..
 
 devDependencies:
   '@tailwindcss/typography':
@@ -2778,22 +2778,6 @@ packages:
     dependencies:
       isexe: 2.0.0
 
-  /whisper-turbo@0.9.0:
-    resolution: {integrity: sha512-K/tjxD1bhgAE+MjO/u+M14kcprfbX1QNiRtWs8J2fXfb3q5QEYPBM1OCPa7yofZcQ4C8lP/k0vGRdl8OXohKOg==}
-    dependencies:
-      comlink: 4.3.1
-      fix-webm-duration: 1.0.5
-      idb: 7.1.1
-      p-retry: 5.1.2
-      true-myth: 6.2.0
-      uuid: 9.0.1
-      whisper-webgpu: 0.8.0
-    dev: false
-
-  /whisper-webgpu@0.8.0:
-    resolution: {integrity: sha512-E0JbPO09f54aMWs1NfzGLIotG/yX0sSHSFyBs6tZyvndMrXo8yeDhGf77SBB6c0KmdjuA45LXVzO7Vo8ERwsug==}
-    dev: false
-
   /wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
 
@@ -2808,3 +2792,21 @@ packages:
   /yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+
+  file:..:
+    resolution: {directory: .., type: directory}
+    name: whisper-turbo
+    dependencies:
+      comlink: 4.3.1
+      fix-webm-duration: 1.0.5
+      idb: 7.1.1
+      p-retry: 5.1.2
+      true-myth: 6.2.0
+      uuid: 9.0.1
+      whisper-webgpu: file:../../whisper-web/target/pkg
+    dev: false
+
+  file:../../whisper-web/target/pkg:
+    resolution: {directory: ../../whisper-web/target/pkg, type: directory}
+    name: whisper-webgpu
+    dev: false

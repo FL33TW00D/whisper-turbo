@@ -3,6 +3,9 @@ import {
     AvailableModels,
     InferenceSession,
     SessionManager,
+    Segment,
+    DecodingOptionsBuilder,
+    Init,
 } from "whisper-turbo";
 import toast from "react-hot-toast";
 import { humanFileSize } from "../util";
@@ -10,20 +13,13 @@ import ProgressBar from "./progressBar";
 import ModelSelector from "./modelSelector";
 import MicButton, { AudioMetadata } from "./micButton";
 
-export interface TSSegment {
-    text: string;
-    start: number;
-    stop: number;
-    last: boolean;
-}
-
-export interface TSTranscript {
-    segments: Array<TSSegment>;
+export interface Transcript {
+    segments: Array<Segment>;
 }
 
 interface ControlPanelProps {
-    transcript: TSTranscript;
-    setTranscript: React.Dispatch<React.SetStateAction<TSTranscript>>;
+    transcript: Transcript;
+    setTranscript: React.Dispatch<React.SetStateAction<Transcript>>;
     setDownloadAvailable: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -108,23 +104,29 @@ const ControlPanel = (props: ControlPanelProps) => {
             toast.error("No audio file loaded");
             return;
         }
-        props.setTranscript((transcript: TSTranscript) => {
+        props.setTranscript((transcript: Transcript) => {
             return {
                 ...transcript,
                 segments: [],
             };
         });
         setTranscribing(true);
+        await Init();
+        let builder = new DecodingOptionsBuilder();
+        let options = builder.build();
+        console.log("Options: ", options);
+    
         await session.current.transcribe(
             audioData!,
             audioMetadata!.fromMic,
+            options,
             (s: any) => {
                 if (s.last) {
                     setTranscribing(false);
                     props.setDownloadAvailable(true);
                     return;
                 }
-                props.setTranscript((transcript: TSTranscript) => {
+                props.setTranscript((transcript: Transcript) => {
                     return {
                         ...transcript,
                         segments: [...transcript.segments, s],
