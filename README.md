@@ -11,7 +11,7 @@ Check out [Getting Started](https://ratchet.sh/whisper-turbo) for more.
 
 ## Demo
 
-<video src="https://github.com/FL33TW00D/whisper-turbo/raw/master/.github/readme-demo.mp4"</video>
+https://github.com/FL33TW00D/whisper-turbo/assets/45471420/1e19aa1f-bb56-4b5c-bc00-e79aabb4d1e0
 
 ## Supported Platforms
 
