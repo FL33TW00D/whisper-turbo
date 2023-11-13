@@ -120,7 +120,7 @@ const ControlPanel = (props: ControlPanelProps) => {
             audioData!,
             audioMetadata!.fromMic,
             options,
-            (s: any) => {
+            (s: Segment) => {
                 if (s.last) {
                     setTranscribing(false);
                     props.setDownloadAvailable(true);
