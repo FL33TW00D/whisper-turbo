@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import Modal from "react-responsive-modal";
 
 const WebGPUModal = () => {
-    const [hasWebGPU, setHasWebGPU] = useState<boolean>(false);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(true);
 
     useEffect(() => {
@@ -11,7 +10,6 @@ const WebGPUModal = () => {
             setIsModalOpen(true);
             return;
         }
-        setHasWebGPU(true);
     }, []);
 
     const handleModalClose = () => {
@@ -47,34 +45,30 @@ const WebGPUModal = () => {
 
     return (
         <>
-            {!hasWebGPU ? (
-                <Modal
-                    classNames={{
-                        modal: "!bg-pop-orange !outline w-1/2 md:w-1/2 xl:w-1/3 2xl:w-1/4 overflow-x-hidden !text-white",
+            <Modal
+                classNames={{
+                    modal: "!bg-pop-orange !outline w-1/2 md:w-1/2 xl:w-1/3 2xl:w-1/4 overflow-x-hidden !text-white",
+                }}
+                open={isModalOpen}
+                onClose={handleModalClose}
+                center
+                closeIcon={closeIcon}
+            >
+                <div
+                    className="flex flex-col text-2xl h-full text-center"
+                    style={{
+                        fontFamily: "__VT323_2a9463",
                     }}
-                    open={isModalOpen}
-                    onClose={handleModalClose}
-                    center
-                    closeIcon={closeIcon}
                 >
-                    <div
-                        className="flex flex-col text-2xl h-full text-center"
-                        style={{
-                            fontFamily: "__VT323_2a9463",
-                        }}
-                    >
-                        <div className="mx-8 mt-8 text-stone-50">
-                            <p>
-                                Uh oh! It looks like your browser doesn't
-                                support WebGPU. Please try again in a different
-                                browser.
-                            </p>
-                        </div>
+                    <div className="mx-8 mt-8 text-stone-50">
+                        <p>
+                            Uh oh! It looks like your browser doesn't support
+                            WebGPU. Please try again in a different browser.
+                        </p>
                     </div>
-                </Modal>
-            ) : (
-                <></>
-            )}
+                </div>
+            </Modal>
+            ){" "}
         </>
     );
 };
