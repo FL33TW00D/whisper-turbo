@@ -1,19 +1,26 @@
 import React, { useState, useEffect } from "react";
 import Modal from "react-responsive-modal";
+import LanguageDropdown from "./languageDropdown";
 
-const WebGPUModal = () => {
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(true);
+interface ConfigModalProps {
+    isModalOpen: boolean;
+    setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
+
+const ConfigModal = (props: ConfigModalProps) => {
     useEffect(() => {
         //@ts-ignore
         if (!navigator.gpu) {
-            setIsModalOpen(true);
+            props.setIsModalOpen(true);
             return;
         }
     }, []);
 
+    const [selected, setSelected] = useState("");
+
     const handleModalClose = () => {
-        setIsModalOpen(false);
+        props.setIsModalOpen(false);
     };
 
     const closeIcon = (
@@ -47,9 +54,9 @@ const WebGPUModal = () => {
         <>
             <Modal
                 classNames={{
-                    modal: "!bg-pop-orange !outline w-1/2 md:w-1/2 xl:w-1/3 2xl:w-1/4 overflow-x-hidden !text-white",
+                    modal: "!bg-pop-orange !outline h-3/4 w-3/4 md:w-3/4 xl:w-1/2 2xl:w-1/3 overflow-x-hidden !text-white",
                 }}
-                open={isModalOpen}
+                open={props.isModalOpen}
                 onClose={handleModalClose}
                 center
                 closeIcon={closeIcon}
@@ -60,17 +67,14 @@ const WebGPUModal = () => {
                         fontFamily: "__VT323_2a9463",
                     }}
                 >
-                    <div className="mx-8 mt-8 text-stone-50">
-                        <p>
-                            Uh oh! It looks like your browser doesn't support
-                            WebGPU. Please try again in a different browser.
-                        </p>
+                    <div className="flex flex-col p-8 mx-auto w-full">
+                        <LanguageDropdown />
                     </div>
                 </div>
             </Modal>
-            ){" "}
+            )
         </>
     );
 };
 
-export default WebGPUModal;
+export default ConfigModal;
