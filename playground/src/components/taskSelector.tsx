@@ -1,0 +1,62 @@
+import React, { useState } from "react";
+
+const TaskComponent = () => {
+    const [checkedState, setCheckedState] = useState({
+        translate: false,
+        transcribe: true,
+    });
+
+    const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setCheckedState({
+            ...checkedState,
+            [event.target.name]: event.target.checked,
+        });
+        if (event.target.name === "translate")
+            setCheckedState({
+                translate: event.target.checked,
+                transcribe: !event.target.checked,
+            });
+        if (event.target.name === "transcribe")
+            setCheckedState({
+                translate: !event.target.checked,
+                transcribe: event.target.checked,
+            });
+    };
+
+    return (
+        <div className="flex flex-col">
+            <label className="text-2xl mr-auto">Task</label>
+            <div className="mt-2 flex flex-col">
+                <div className="flex flex-row w-36 items-center mt-2">
+                    <label className=" text-left text-2xl mr-auto w-full">
+                        Translate
+                    </label>
+                    <input
+                        id="translate-checkbox"
+                        type="checkbox"
+                        name="translate"
+                        checked={checkedState.translate}
+                        onChange={handleOnChange}
+                        className="form-checkbox ml-auto h-7 w-7 text-blue-600"
+                    />
+                </div>
+
+                <div className="flex flex-row w-36 items-center mt-2">
+                    <label className=" text-left text-2xl mr-auto w-full">
+                        Transcribe
+                    </label>
+                    <input
+                        id="translate-checkbox"
+                        type="checkbox"
+                        name="transcribe"
+                        checked={checkedState.transcribe}
+                        onChange={handleOnChange}
+                        className="form-checkbox ml-auto h-7 w-7 text-blue-600"
+                    />
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default TaskComponent;

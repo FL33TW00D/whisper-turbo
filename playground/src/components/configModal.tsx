@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import Modal from "react-responsive-modal";
 import LanguageDropdown from "./languageDropdown";
+import TaskComponent from "./taskSelector";
 
 interface ConfigModalProps {
     isModalOpen: boolean;
     setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
-
 
 const ConfigModal = (props: ConfigModalProps) => {
     useEffect(() => {
@@ -67,8 +67,9 @@ const ConfigModal = (props: ConfigModalProps) => {
                         fontFamily: "__VT323_2a9463",
                     }}
                 >
-                    <div className="flex flex-col p-8 mx-auto w-full">
+                    <div className="flex flex-col p-8 gap-y-8 mx-auto w-full">
                         <LanguageDropdown />
+                        <TaskComponent />
                     </div>
                 </div>
             </Modal>
