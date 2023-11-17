@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { ConfigOptions } from "./configModal";
 
 const AvailableLanguages = {
     en: "English",
@@ -103,14 +104,23 @@ const AvailableLanguages = {
     yue: "Cantonese",
 };
 
-const LanguageDropdown = () => {
+interface LanguageDropdownProps {
+    setConfigOptions: React.Dispatch<React.SetStateAction<ConfigOptions>>;
+}
+
+const LanguageDropdown = (props: LanguageDropdownProps) => {
     const [open, setOpen] = useState(false);
     const [selectedLanguage, setSelectedLanguage] = useState<string | null>(
         null
     );
 
     const toggleOpen = () => setOpen((prev) => !prev);
+
     const selectLanguage = (lang: string) => {
+        props.setConfigOptions((prev: ConfigOptions) => ({
+            ...prev,
+            language: lang,
+        }));
         setSelectedLanguage(lang);
         setOpen(false);
     };
@@ -162,7 +172,7 @@ const LanguageDropdown = () => {
                                     href="#"
                                     className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
                                     role="menuitem"
-                                    onClick={() => selectLanguage(name)}
+                                    onClick={() => selectLanguage(lang)}
                                 >
                                     {name}
                                 </a>

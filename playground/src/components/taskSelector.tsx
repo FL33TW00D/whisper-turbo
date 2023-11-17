@@ -1,6 +1,12 @@
 import React, { useState } from "react";
+import { ConfigOptions } from "./configModal";
+import { Task } from "whisper-webgpu";
 
-const TaskComponent = () => {
+interface TaskComponentProps {
+    setConfigOptions: React.Dispatch<React.SetStateAction<ConfigOptions>>;
+}
+
+const TaskComponent = (props: TaskComponentProps) => {
     const [checkedState, setCheckedState] = useState({
         translate: false,
         transcribe: true,
@@ -20,27 +26,20 @@ const TaskComponent = () => {
             setCheckedState({
                 translate: !event.target.checked,
                 transcribe: event.target.checked,
-            });
+        });
+        props.setConfigOptions((prev: ConfigOptions) => ({
+            ...prev,
+            task:
+                event.target.name === "translate"
+                    ? Task.Translate
+                    : Task.Transcribe,
+        }));
     };
 
     return (
         <div className="flex flex-col">
             <label className="text-2xl mr-auto">Task</label>
             <div className="mt-2 flex flex-col">
-                <div className="flex flex-row w-36 items-center mt-2">
-                    <label className=" text-left text-2xl mr-auto w-full">
-                        Translate
-                    </label>
-                    <input
-                        id="translate-checkbox"
-                        type="checkbox"
-                        name="translate"
-                        checked={checkedState.translate}
-                        onChange={handleOnChange}
-                        className="form-checkbox ml-auto h-7 w-7 text-blue-600"
-                    />
-                </div>
-
                 <div className="flex flex-row w-36 items-center mt-2">
                     <label className=" text-left text-2xl mr-auto w-full">
                         Transcribe
@@ -50,6 +49,20 @@ const TaskComponent = () => {
                         type="checkbox"
                         name="transcribe"
                         checked={checkedState.transcribe}
+                        onChange={handleOnChange}
+                        className="form-checkbox ml-auto h-7 w-7 text-blue-600"
+                    />
+                </div>
+
+                <div className="flex flex-row w-36 items-center mt-2">
+                    <label className=" text-left text-2xl mr-auto w-full">
+                        Translate
+                    </label>
+                    <input
+                        id="translate-checkbox"
+                        type="checkbox"
+                        name="translate"
+                        checked={checkedState.translate}
                         onChange={handleOnChange}
                         className="form-checkbox ml-auto h-7 w-7 text-blue-600"
                     />
