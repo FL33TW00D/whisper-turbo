@@ -5,7 +5,7 @@ import {
     SessionManager,
     Segment,
     DecodingOptionsBuilder,
-    Init,
+    initialize
 } from "whisper-turbo";
 import toast from "react-hot-toast";
 import { humanFileSize } from "../util";
@@ -120,7 +120,7 @@ const ControlPanel = (props: ControlPanelProps) => {
             };
         });
         setTranscribing(true);
-        await Init();
+        await initialize();
         let builder = new DecodingOptionsBuilder();
         if (configOptions.language)
             builder = builder.setLanguage(configOptions.language);

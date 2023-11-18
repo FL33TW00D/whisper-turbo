@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { ConfigOptions } from "./configModal";
-import { Suppress } from "whisper-webgpu";
 
 interface SuppressComponentProps {
     configOptions: ConfigOptions;
