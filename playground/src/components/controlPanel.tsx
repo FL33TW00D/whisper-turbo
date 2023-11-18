@@ -5,7 +5,8 @@ import {
     SessionManager,
     Segment,
     DecodingOptionsBuilder,
-    initialize
+    initialize,
+    Task
 } from "whisper-turbo";
 import toast from "react-hot-toast";
 import { humanFileSize } from "../util";
@@ -14,7 +15,6 @@ import ModelSelector from "./modelSelector";
 import MicButton, { AudioMetadata } from "./micButton";
 import GearIcon from "./gearIcon";
 import ConfigModal, { ConfigOptions } from "./configModal";
-import { Task } from "whisper-webgpu";
 
 export interface Transcript {
     segments: Array<Segment>;

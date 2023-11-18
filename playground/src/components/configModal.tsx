@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Modal from "react-responsive-modal";
-import { Task } from "whisper-webgpu";
+import { Task } from "whisper-turbo";
 import LanguageDropdown from "./languageDropdown";
 import SuppressComponent from "./suppressSelector";
 import TaskComponent from "./taskSelector";
