@@ -24,8 +24,8 @@ dependencies:
     specifier: ^9.0.1
     version: 9.0.1
   whisper-webgpu:
-    specifier: 0.8.0
-    version: 0.8.0
+    specifier: 0.9.0
+    version: 0.9.0
 
 devDependencies:
   '@types/node':
@@ -1000,8 +1000,8 @@ packages:
       isexe: 2.0.0
     dev: true
 
-  /whisper-webgpu@0.8.0:
-    resolution: {integrity: sha512-E0JbPO09f54aMWs1NfzGLIotG/yX0sSHSFyBs6tZyvndMrXo8yeDhGf77SBB6c0KmdjuA45LXVzO7Vo8ERwsug==}
+  /whisper-webgpu@0.9.0:
+    resolution: {integrity: sha512-hMQ76a1TwHg4uiXuEPq/w9MFvDp4Ib22OdtKfqTybW6uLtqlJTQJgcGE5vgoVAeAS8MNzYCd/H7AyoVVdl09mA==}
     dev: false
 
   /wrappy@1.0.2:

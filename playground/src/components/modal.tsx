@@ -5,8 +5,6 @@ const WebGPUModal = () => {
     const [hasWebGPU, setHasWebGPU] = useState<boolean>(false);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(true);
 
-    const myRef = React.useRef(null);
-
     useEffect(() => {
         //@ts-ignore
         if (!navigator.gpu) {

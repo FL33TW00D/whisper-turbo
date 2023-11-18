@@ -2,7 +2,7 @@ import Head from "next/head";
 import { Toaster } from "react-hot-toast";
 import React from "react";
 
-export const siteTitle = "AI Playground";
+export const siteTitle = "Whisper Turbo";
 
 type LayoutProps = {
     children: React.ReactNode;

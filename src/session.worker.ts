@@ -62,8 +62,9 @@ export class Session {
     }
 
     public async run(
-        audio: Uint8Array
-    ): Promise<Result<whisper.Transcript, Error>> {
+        audio: Uint8Array,
+        options: any 
+    ): Promise<Result<any, Error>> {
         if (!this.whisperSession) {
             return Result.err(
                 new Error(
@@ -72,12 +73,13 @@ export class Session {
             );
         }
 
-        return Result.ok(await this.whisperSession.run(audio));
+        return Result.ok(await this.whisperSession.run(audio, options));
     }
 
     public async stream(
         audio: Uint8Array,
         raw_audio: boolean,
+        options: any,
         callback: (decoded: whisper.Segment) => void
     ): Promise<Result<void, Error>> {
         if (!this.whisperSession) {
@@ -89,7 +91,12 @@ export class Session {
         }
 
         return Result.ok(
-            await this.whisperSession.stream(audio, raw_audio, callback)
+            await this.whisperSession.stream(
+                audio,
+                raw_audio,
+                options,
+                callback
+            )
         );
     }
 }

@@ -2,16 +2,14 @@ import type { NextPage } from "next";
 import { VT323 } from "@next/font/google";
 import { useState } from "react";
 import Layout from "../components/layout";
-import ControlPanel, {
-    TSSegment,
-    TSTranscript,
-} from "../components/controlPanel";
 import WebGPUModal from "../components/modal";
+import { Segment } from "whisper-turbo";
+import ControlPanel, { Transcript } from "../components/controlPanel";
 
 const vt = VT323({ weight: "400", display: "swap" });
 
 const Home: NextPage = () => {
-    const [transcript, setTranscript] = useState<TSTranscript>({
+    const [transcript, setTranscript] = useState<Transcript>({
         segments: [],
     });
     const [downloadAvailable, setDownloadAvailable] = useState(false);
@@ -43,7 +41,7 @@ const Home: NextPage = () => {
                             <div className="flex flex-col h-full">
                                 {transcript &&
                                     transcript.segments.map(
-                                        (segment: TSSegment) => {
+                                        (segment: Segment) => {
                                             return (
                                                 <div
                                                     key={segment.start}
