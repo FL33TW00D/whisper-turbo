@@ -47,6 +47,7 @@ const ControlPanel = (props: ControlPanelProps) => {
     const [configOptions, setConfigOptions] = useState<ConfigOptions>({
         language: null,
         task: Task.Transcribe,
+        suppress_non_speech: true,
     });
 
     useEffect(() => {
@@ -121,9 +122,13 @@ const ControlPanel = (props: ControlPanelProps) => {
         setTranscribing(true);
         await Init();
         let builder = new DecodingOptionsBuilder();
-        console.log("Config options: ", configOptions);
         if (configOptions.language)
             builder = builder.setLanguage(configOptions.language);
+        if (configOptions.suppress_non_speech)
+            builder = builder.setSuppressTokens(Int32Array.from([-1]));
+        else
+            builder = builder.setSuppressTokens(Int32Array.from([]));
+
         builder = builder.setTask(configOptions.task);
         const options = builder.build();
         console.log("Options: ", options);
@@ -154,6 +159,7 @@ const ControlPanel = (props: ControlPanelProps) => {
             <ConfigModal
                 isModalOpen={isConfigOpen}
                 setIsModalOpen={setIsConfigOpen}
+                configOptions={configOptions}
                 setConfigOptions={setConfigOptions}
             />
             <div className="flex-1 w-1/2 h-full flex flex-col relative z-10 overflow-hidden">

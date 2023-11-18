@@ -3,14 +3,17 @@ import { ConfigOptions } from "./configModal";
 import { Task } from "whisper-webgpu";
 
 interface TaskComponentProps {
+    configOptions: ConfigOptions;
     setConfigOptions: React.Dispatch<React.SetStateAction<ConfigOptions>>;
 }
 
 const TaskComponent = (props: TaskComponentProps) => {
-    const [checkedState, setCheckedState] = useState({
-        translate: false,
-        transcribe: true,
-    });
+    let state = {
+        translate: props.configOptions.task === Task.Translate,
+        transcribe: props.configOptions.task === Task.Transcribe,
+    };
+
+    const [checkedState, setCheckedState] = useState(state);
 
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setCheckedState({

@@ -2,17 +2,20 @@ import React, { useState, useEffect } from "react";
 import Modal from "react-responsive-modal";
 import { Task } from "whisper-webgpu";
 import LanguageDropdown from "./languageDropdown";
+import SuppressComponent from "./suppressSelector";
 import TaskComponent from "./taskSelector";
 
 interface ConfigModalProps {
     isModalOpen: boolean;
     setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    configOptions: ConfigOptions;
     setConfigOptions: React.Dispatch<React.SetStateAction<ConfigOptions>>;
 }
 
 export interface ConfigOptions {
     language: string | null;
     task: Task;
+    suppress_non_speech: boolean;
 }
 
 const ConfigModal = (props: ConfigModalProps) => {
@@ -73,8 +76,9 @@ const ConfigModal = (props: ConfigModalProps) => {
                     }}
                 >
                     <div className="flex flex-col p-8 gap-y-8 mx-auto w-full">
-                        <LanguageDropdown setConfigOptions={props.setConfigOptions} />
-                        <TaskComponent setConfigOptions={props.setConfigOptions} />
+                        <LanguageDropdown configOptions={props.configOptions} setConfigOptions={props.setConfigOptions} />
+                        <TaskComponent configOptions={props.configOptions} setConfigOptions={props.setConfigOptions} />
+                        <SuppressComponent configOptions={props.configOptions} setConfigOptions={props.setConfigOptions} />
                     </div>
                 </div>
             </Modal>

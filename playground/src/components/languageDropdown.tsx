@@ -105,13 +105,14 @@ const AvailableLanguages = {
 };
 
 interface LanguageDropdownProps {
+    configOptions: ConfigOptions;
     setConfigOptions: React.Dispatch<React.SetStateAction<ConfigOptions>>;
 }
 
 const LanguageDropdown = (props: LanguageDropdownProps) => {
     const [open, setOpen] = useState(false);
     const [selectedLanguage, setSelectedLanguage] = useState<string | null>(
-        null
+        props.configOptions.language
     );
 
     const toggleOpen = () => setOpen((prev) => !prev);
