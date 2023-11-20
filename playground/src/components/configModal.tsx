@@ -82,7 +82,6 @@ const ConfigModal = (props: ConfigModalProps) => {
                     </div>
                 </div>
             </Modal>
-            )
         </>
     );
 };
